@@ -103,3 +103,22 @@ def test_damage_drops_carried_shell():
     k.held = True; g.player.carrying = k
     g.drop_shell()
     assert g.player.carrying is None and not k.held and k.state == "shell"
+
+
+def test_down_on_trigger_teleports_hero():
+    g = Game(); g.new_game(); g.state = "PLAYING"
+    trig = pygame.Rect(5 * 40, 6 * 40, 40, 40)
+    g.level.warps = [(trig, (9, 10))]
+    g.player.x = float(trig.x); g.player.y = float(trig.top - g.player.h)
+    g.player.on_ground = True
+    g.try_warp()
+    assert g.player.x == 9 * 40 and g.player.rect.bottom == 10 * 40
+
+
+def test_down_off_trigger_does_nothing():
+    g = Game(); g.new_game(); g.state = "PLAYING"
+    g.level.warps = [(pygame.Rect(5 * 40, 6 * 40, 40, 40), (9, 10))]
+    g.player.x = 800.0; g.player.y = 100.0; g.player.on_ground = True
+    before = (g.player.x, g.player.y)
+    g.try_warp()
+    assert (g.player.x, g.player.y) == before

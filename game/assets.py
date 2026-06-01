@@ -58,6 +58,10 @@ def draw_block(surface, rect, kind, used=False, area_type="overworld"):
         if not used:
             q = _question_font().render("?", True, S.CREAM)
             surface.blit(q, q.get_rect(center=rect.center))
+    elif kind == "T":                     # pipe mouth
+        draw_pipe(surface, rect, mouth=True)
+    elif kind == "t":                     # pipe shaft
+        draw_pipe(surface, rect, mouth=False)
 
 
 def _burst(surface, cx, cy, R, color, width, step=30):
@@ -126,6 +130,21 @@ def draw_goomba(surface, rect):
         pygame.draw.circle(surface, S.INK, (ex, eye_y), 2)
     pygame.draw.ellipse(surface, S.SAGE, (rect.left, rect.bottom - 5, rect.w // 2 - 1, 5))
     pygame.draw.ellipse(surface, S.SAGE, (rect.centerx + 1, rect.bottom - 5, rect.w // 2 - 1, 5))
+
+
+def draw_pipe(surface, rect, mouth):
+    if mouth:
+        body = pygame.Rect(rect.x, rect.y + 12, rect.w, rect.h - 12)
+        pygame.draw.rect(surface, S.PIPE, body)
+        pygame.draw.rect(surface, S.PIPE_DK, (body.right - 8, body.y, 8, body.h))
+        rim = pygame.Rect(rect.x - 2, rect.y, rect.w + 4, 12)
+        pygame.draw.rect(surface, S.PIPE, rim)
+        pygame.draw.rect(surface, S.INK, rim, 2)
+        pygame.draw.line(surface, S.CREAM, (rim.x + 4, rim.y + 3), (rim.right - 4, rim.y + 3), 2)
+    else:
+        pygame.draw.rect(surface, S.PIPE, rect)
+        pygame.draw.rect(surface, S.PIPE_DK, (rect.right - 8, rect.y, 8, rect.h))
+        pygame.draw.line(surface, S.CREAM, (rect.x + 4, rect.y), (rect.x + 4, rect.bottom), 2)
 
 
 def draw_koopa(surface, rect, state="walk", direction=1):

@@ -1,3 +1,4 @@
+import pygame
 from game import settings as S
 from game.entities.block import Block, SOLID_KINDS
 from game.entities.coin import Coin
@@ -14,19 +15,24 @@ class Level:
         self.enemies = []
         self.flag = None
         self.player_spawn = (0, 0)
+        self.warps = []
         self._load(path)
         self.width_px = self.cols * S.TILE
         self.solids = [b.rect for b in self.blocks]
+        self.play_width = self.flag.rect.right if self.flag else self.width_px
 
     def _load(self, path):
         self.area_type = "overworld"
         with open(path, encoding="utf-8") as f:
             raw = [line.rstrip("\n") for line in f]
         rows = []
+        warp_specs = []
         for line in raw:
             if line.startswith("#"):
                 if "type:" in line:
                     self.area_type = line.split("type:", 1)[1].strip()
+                elif "warp:" in line:
+                    warp_specs.append(line.split("warp:", 1)[1].strip())
                 continue
             if line != "":
                 rows.append(line)
@@ -49,6 +55,11 @@ class Level:
                     self.flag = Flag(x, y)
                 elif ch == "P":
                     self.player_spawn = (x, y)
+        for spec in warp_specs:
+            entry, dest = spec.split("->")
+            ex, ey = (int(v) for v in entry.strip().split(","))
+            dx, dy = (int(v) for v in dest.strip().split(","))
+            self.warps.append((pygame.Rect(ex * S.TILE, ey * S.TILE, S.TILE, S.TILE), (dx, dy)))
 
     def draw(self, surface, camera):
         for b in self.blocks:

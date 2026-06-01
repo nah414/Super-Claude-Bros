@@ -92,6 +92,10 @@ SHELL_KICK_COOLDOWN = 12       # frames the kicker is safe right after a kick
 KOOPA_SCORE         = 200
 KOOPA_SHELL         = (96, 156, 76)
 
+# --- Pipes ---
+PIPE    = (84, 138, 74)
+PIPE_DK = (54, 92, 50)
+
 
 def resource_path(rel):
     """Resolve a data file path for both source runs and PyInstaller bundles.

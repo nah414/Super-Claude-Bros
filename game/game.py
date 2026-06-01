@@ -140,6 +140,8 @@ class Game:
                         self.sfx.play("fire")
                 elif event.key == pygame.K_e and self.state == "PLAYING":
                     self.grab_or_throw()
+                elif event.key in (pygame.K_DOWN, pygame.K_s) and self.state == "PLAYING":
+                    self.try_warp()
             elif event.type == pygame.KEYUP:
                 if event.key in JUMP_KEYS and self.state == "PLAYING":
                     self.player.release_jump()
@@ -169,7 +171,7 @@ class Game:
             fx.update()
         self.effects = [fx for fx in self.effects if fx.alive]
         self.camera.update(self.player.rect)
-        seg = levelset.segment_track(self.player.x, self.level.width_px)
+        seg = levelset.segment_track(min(self.player.x, self.level.play_width), self.level.play_width)
         if seg > self.music_track:
             self.music_track = seg
             self.music.play_track(seg)
@@ -247,6 +249,21 @@ class Game:
                     self.popup(e.rect.centerx, e.rect.top, f"+{f.score}")
                     self.sfx.play("stomp")
         self.fireballs = [f for f in self.fireballs if f.alive]
+
+    def try_warp(self):
+        p = self.player
+        if not p.on_ground:
+            return
+        foot = (p.rect.centerx, p.rect.bottom + 2)
+        for trig, (dx, dy) in self.level.warps:
+            if trig.collidepoint(*foot):
+                p.x = float(dx * S.TILE)
+                p.y = float(dy * S.TILE - p.h)
+                p.vx = p.vy = 0.0
+                self.camera.update(p.rect)
+                self.sfx.play("power")
+                self.popup(p.rect.centerx, p.rect.top, "WARP")
+                return
 
     def grab_or_throw(self):
         if self.player.carrying is not None:
