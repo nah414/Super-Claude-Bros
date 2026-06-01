@@ -7,7 +7,7 @@ from game.entities.entity import Entity
 
 class Player(Entity):
     def __init__(self, x, y):
-        super().__init__(x, y, 30, 36)
+        super().__init__(x, y, S.PLAYER_SMALL[0], S.PLAYER_SMALL[1])
         self.on_ground = False
         self.facing = 1
         self.power = "small"      # extension point for power-ups
@@ -47,4 +47,4 @@ class Player(Entity):
                 self.vx = min(0.0, self.vx + S.FRICTION)
 
     def draw(self, surface, camera):
-        assets.draw_player(surface, camera.apply(self.rect), self.facing)
+        assets.draw_player(surface, camera.apply(self.rect), self.facing, self.power)

@@ -54,19 +54,41 @@ def draw_block(surface, rect, kind, used=False):
             surface.blit(q, q.get_rect(center=rect.center))
 
 
-def draw_player(surface, rect, facing=1):
-    pygame.draw.rect(surface, S.ORANGE, rect, border_radius=10)
-    pygame.draw.rect(surface, S.INK, rect, 2, border_radius=10)
-    ox = 4 * facing
-    eye_y = rect.y + rect.h // 3
-    for ex in (rect.centerx - 7 + ox, rect.centerx + 7 + ox):
-        pygame.draw.circle(surface, S.CREAM, (ex, eye_y), 5)
-        pygame.draw.circle(surface, S.INK, (ex, eye_y), 2)
-    mx, my = rect.centerx + ox, eye_y + 11
+def draw_player(surface, rect, facing=1, power="small"):
+    w, h = rect.w, rect.h
+    ox = int(2 * facing)
+    body = pygame.Rect(rect.x + int(w * 0.10), rect.y + int(h * 0.42),
+                       int(w * 0.80), int(h * 0.46))
+    # legs
+    fy = body.bottom
+    pygame.draw.rect(surface, S.ORANGE, (body.centerx - int(w*0.22), fy - 2, int(w*0.16), int(h*0.12)), border_radius=3)
+    pygame.draw.rect(surface, S.ORANGE, (body.centerx + int(w*0.06), fy - 2, int(w*0.16), int(h*0.12)), border_radius=3)
+    # feet
+    pygame.draw.ellipse(surface, S.INK, (body.left - 2, rect.bottom - int(h*0.10), int(w*0.40), int(h*0.10)))
+    pygame.draw.ellipse(surface, S.INK, (body.centerx + 1, rect.bottom - int(h*0.10), int(w*0.40), int(h*0.10)))
+    # body
+    pygame.draw.rect(surface, S.ORANGE, body, border_radius=int(w*0.30))
+    pygame.draw.rect(surface, S.INK, body, 2, border_radius=int(w*0.30))
+    # face on the body
+    ey = body.y + int(body.h * 0.34)
+    er = max(3, int(w * 0.13))
+    for ex in (body.centerx - int(w*0.18) + ox, body.centerx + int(w*0.18) + ox):
+        pygame.draw.circle(surface, S.CREAM, (ex, ey), er)
+        pygame.draw.circle(surface, S.INK, (ex + ox, ey + 2), max(1, er // 2))
+    sm = int(w * 0.16)
+    smy = ey + int(h * 0.12)
     pygame.draw.lines(surface, S.INK, False,
-                      [(mx - 7, my), (mx, my + 4), (mx + 7, my)], 2)
-    pygame.draw.ellipse(surface, S.INK, (rect.left + 3, rect.bottom - 6, 12, 6))
-    pygame.draw.ellipse(surface, S.INK, (rect.right - 15, rect.bottom - 6, 12, 6))
+                      [(body.centerx - sm + ox, smy), (body.centerx + ox, smy + 4), (body.centerx + sm + ox, smy)], 2)
+    # glowing sunburst head above the body
+    hx, hy = rect.centerx, rect.y + int(h * 0.22)
+    R = int(w * 0.42) if power == "big" else int(w * 0.38)
+    pygame.draw.line(surface, S.ORANGE, (hx, hy + int(w*0.22)), (hx, body.y), 4)   # neck
+    for a in range(0, 360, 30):
+        rad = math.radians(a)
+        pygame.draw.line(surface, S.ORANGE, (hx, hy), (hx + R*math.cos(rad), hy + R*math.sin(rad)), 3)
+    pygame.draw.circle(surface, S.ORANGE, (hx, hy), max(5, int(w*0.26)))
+    pygame.draw.circle(surface, S.INK, (hx, hy), max(5, int(w*0.26)), 2)
+    pygame.draw.circle(surface, S.CREAM, (hx, hy), max(2, int(w*0.11)))
 
 
 def draw_coin(surface, rect):
