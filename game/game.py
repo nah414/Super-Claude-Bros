@@ -45,7 +45,8 @@ class Game:
         self.mushrooms = []
         self.effects = []
         self.intro_timer = INTRO_FRAMES
-        self.music.play_for_level(self.index)
+        self.music_track = 1
+        self.music.play_track(1)
         self.state = "LEVEL_INTRO"
 
     def respawn(self):
@@ -53,6 +54,8 @@ class Game:
         self.camera = Camera(self.level.width_px)
         self.mushrooms = []
         self.effects = []
+        self.music_track = 1
+        self.music.play_track(1)
         self.state = "PLAYING"
 
     # --- helpers ---
@@ -140,6 +143,10 @@ class Game:
             fx.update()
         self.effects = [fx for fx in self.effects if fx.alive]
         self.camera.update(self.player.rect)
+        seg = levelset.segment_track(self.player.x, self.level.width_px)
+        if seg > self.music_track:
+            self.music_track = seg
+            self.music.play_track(seg)
 
         self.handle_coins()
         self.handle_boxes()

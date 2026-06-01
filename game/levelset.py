@@ -22,3 +22,12 @@ def track_number(index):
 def next_index(index):
     nxt = index + 1
     return nxt if nxt < len(LEVELS) else None
+
+
+def segment_track(x, width, segments=TRACKS):
+    """Which track (1..segments) plays for horizontal position x in a level of
+    the given pixel width. The level is split into `segments` equal slices."""
+    if width <= 0:
+        return 1
+    seg = int(x // (width / segments))
+    return max(1, min(segments, seg + 1))

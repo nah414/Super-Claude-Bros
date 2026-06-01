@@ -1,7 +1,6 @@
-"""Loops one pre-rendered track per level. Silent no-op if no audio device."""
+"""Loops one pre-rendered track at a time. Silent no-op if no audio device."""
 import pygame
 from game import settings as S
-from game import levelset
 
 
 class MusicManager:
@@ -14,11 +13,8 @@ class MusicManager:
             except Exception:
                 self.enabled = False
 
-    def play_for_level(self, index):
-        if not self.enabled:
-            return
-        track = levelset.track_number(index)
-        if track == self.current:
+    def play_track(self, track):
+        if not self.enabled or track == self.current:
             return
         self.current = track
         try:

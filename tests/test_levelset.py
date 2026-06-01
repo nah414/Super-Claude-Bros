@@ -16,3 +16,11 @@ def test_track_number_cycles_every_5():
 def test_next_index_ends_at_none():
     assert L.next_index(0) == 1
     assert L.next_index(L.level_count() - 1) is None
+
+
+def test_segment_track_advances_across_the_level():
+    assert L.segment_track(0, 5000) == 1
+    assert L.segment_track(999, 5000) == 1
+    assert L.segment_track(1000, 5000) == 2
+    assert L.segment_track(4999, 5000) == 5
+    assert L.segment_track(99999, 5000) == 5      # clamped past the end
