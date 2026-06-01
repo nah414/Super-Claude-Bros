@@ -9,5 +9,6 @@ build/
 dist/
 *.spec
 
-# Icon preview (the committed source of truth is tools/claude.ico)
+# Icon preview + scratch concept art (sources of truth are committed elsewhere)
 tools/claude_preview.png
+tools/_preview/
