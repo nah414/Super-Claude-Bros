@@ -6,6 +6,8 @@ from game.level import Level
 from game.camera import Camera
 from game.entities.player import Player
 from game.entities.mushroom import Mushroom
+from game.entities.fireflower import FireFlower
+from game.entities.fireball import Fireball
 from game.hud import HUD
 from game.sound import SoundFX
 from game.music import MusicManager
@@ -36,6 +38,7 @@ class Game:
         self.tokens = 0
         self.lives = S.START_LIVES
         self.index = 0
+        self.carry_power = "small"
         self.start_level()
 
     def start_level(self):
@@ -43,7 +46,13 @@ class Game:
         self.player = Player(*self.level.player_spawn)
         self.camera = Camera(self.level.width_px)
         self.mushrooms = []
+        self.flowers = []
+        self.fireballs = []
         self.effects = []
+        if self.carry_power == "big":
+            self.player.grow()
+        elif self.carry_power == "fire":
+            self.player.become_fire()
         self.intro_timer = INTRO_FRAMES
         self.music_track = 1
         self.music.play_track(1)
@@ -53,6 +62,8 @@ class Game:
         self.player = Player(*self.level.player_spawn)
         self.camera = Camera(self.level.width_px)
         self.mushrooms = []
+        self.flowers = []
+        self.fireballs = []
         self.effects = []
         self.music_track = 1
         self.music.play_track(1)
@@ -78,6 +89,7 @@ class Game:
         self.sfx.play("token")
 
     def lose_life(self):
+        self.carry_power = "small"
         self.lives -= 1
         self.sfx.play("hurt")
         if self.lives <= 0:
@@ -119,11 +131,17 @@ class Game:
                     before = self.player.air_jumped
                     self.player.press_jump(self.now())
                     self.sfx.play("double" if (self.player.air_jumped and not before) else "jump")
+                elif event.key == pygame.K_f and self.state == "PLAYING":
+                    if self.player.can_shoot(self.now()) and len(self.fireballs) < S.MAX_FIREBALLS:
+                        self.fireballs.append(Fireball(self.player.rect.centerx, self.player.rect.centery, self.player.facing))
+                        self.player.record_fire(self.now())
+                        self.sfx.play("fire")
             elif event.type == pygame.KEYUP:
                 if event.key in JUMP_KEYS and self.state == "PLAYING":
                     self.player.release_jump()
 
     def advance(self):
+        self.carry_power = self.player.power
         nxt = levelset.next_index(self.index)
         if nxt is None:
             self.music.stop()
@@ -139,6 +157,10 @@ class Game:
             e.update(self.level)
         for m in self.mushrooms:
             m.update(self.level)
+        for fl in self.flowers:
+            fl.update(self.level)
+        for f in self.fireballs:
+            f.update(self.level)
         for fx in self.effects:
             fx.update()
         self.effects = [fx for fx in self.effects if fx.alive]
@@ -151,6 +173,8 @@ class Game:
         self.handle_coins()
         self.handle_boxes()
         self.handle_mushrooms()
+        self.handle_flowers()
+        self.handle_fireballs()
         if self.handle_enemies():
             return
         if self.level.flag and self.player.rect.colliderect(self.level.flag.rect):
@@ -179,7 +203,10 @@ class Game:
                 self.gain_tokens(1, b.rect.centerx, b.rect.top)
             elif b.kind == "M":
                 b.used = True
-                self.mushrooms.append(Mushroom(b.rect.x, b.rect.y))
+                if self.player.power == "small":
+                    self.mushrooms.append(Mushroom(b.rect.x, b.rect.y))
+                else:
+                    self.flowers.append(FireFlower(b.rect.x, b.rect.y))
                 self.sfx.play("power")
 
     def handle_mushrooms(self):
@@ -191,6 +218,29 @@ class Game:
                 self.popup(m.rect.centerx, m.rect.top, f"+{m.score}")
                 self.sfx.play("power")
         self.mushrooms = [m for m in self.mushrooms if m.alive]
+
+    def handle_flowers(self):
+        for fl in self.flowers:
+            if fl.alive and not fl.emerging and self.player.rect.colliderect(fl.rect):
+                fl.alive = False
+                self.player.become_fire()
+                self.score += fl.score
+                self.popup(fl.rect.centerx, fl.rect.top, f"+{fl.score}")
+                self.sfx.play("power")
+        self.flowers = [fl for fl in self.flowers if fl.alive]
+
+    def handle_fireballs(self):
+        for f in self.fireballs:
+            if not f.alive:
+                continue
+            for e in self.level.enemies:
+                if e.alive and f.alive and f.rect.colliderect(e.rect):
+                    e.alive = False
+                    f.alive = False
+                    self.score += f.score
+                    self.popup(e.rect.centerx, e.rect.top, f"+{f.score}")
+                    self.sfx.play("stomp")
+        self.fireballs = [f for f in self.fireballs if f.alive]
 
     def handle_enemies(self):
         for e in self.level.enemies:
@@ -221,6 +271,10 @@ class Game:
             self.level.draw(self.screen, self.camera)
             for m in self.mushrooms:
                 m.draw(self.screen, self.camera)
+            for fl in self.flowers:
+                fl.draw(self.screen, self.camera)
+            for f in self.fireballs:
+                f.draw(self.screen, self.camera)
             self.player.draw(self.screen, self.camera)
             for fx in self.effects:
                 fx.draw(self.screen, self.camera, self.hud.font)
