@@ -37,6 +37,18 @@ def test_m_box_gives_mushroom_small_flower_when_big():
     assert len(g2.flowers) == 1 and len(g2.mushrooms) == 0
 
 
+def test_sliding_shell_kills_another_enemy():
+    from game.entities.koopa import Koopa
+    from game.entities.goomba import Goomba
+    g = Game(); g.new_game()
+    g.level.enemies.clear()
+    k = Koopa(200, 100); k.state = "slide"; k.kick_cooldown = 0
+    goomba = Goomba(200, 100)            # overlapping the shell
+    g.level.enemies.extend([k, goomba])
+    g.handle_shells()
+    assert goomba.alive is False
+
+
 def test_power_persists_across_levels_and_resets_on_death():
     g = Game(); g.new_game()
     g.player.become_fire()

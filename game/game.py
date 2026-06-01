@@ -8,6 +8,7 @@ from game.entities.player import Player
 from game.entities.mushroom import Mushroom
 from game.entities.fireflower import FireFlower
 from game.entities.fireball import Fireball
+from game.entities.koopa import Koopa
 from game.hud import HUD
 from game.sound import SoundFX
 from game.music import MusicManager
@@ -175,6 +176,7 @@ class Game:
         self.handle_mushrooms()
         self.handle_flowers()
         self.handle_fireballs()
+        self.handle_shells()
         if self.handle_enemies():
             return
         if self.level.flag and self.player.rect.colliderect(self.level.flag.rect):
@@ -244,10 +246,28 @@ class Game:
 
     def handle_enemies(self):
         for e in self.level.enemies:
-            if not e.alive:
+            if not e.alive or not self.player.rect.colliderect(e.rect):
                 continue
-            if self.player.rect.colliderect(e.rect):
-                if self.player.vy > 0 and self.player.rect.bottom - e.rect.top < 20:
+            from_top = self.player.vy > 0 and self.player.rect.bottom - e.rect.top < 20
+            if isinstance(e, Koopa):
+                if e.state == "slide" and e.kick_cooldown > 0:
+                    continue                 # you don't hurt yourself the instant you kick
+                outcome = e.player_hit(from_top, self.player.rect.centerx)
+                if outcome in ("stomp", "bounce", "stomp_stop"):
+                    self.player.vy = S.STOMP_BOUNCE
+                    if outcome == "stomp":
+                        self.score += e.score
+                        self.popup(e.rect.centerx, e.rect.top, f"+{e.score}")
+                    self.sfx.play("stomp")
+                elif outcome == "kick":
+                    self.sfx.play("stomp")
+                elif outcome == "hurt":
+                    if self.player.take_damage(self.now()):
+                        self.lose_life()
+                        return True
+                    self.sfx.play("hurt")
+            else:
+                if from_top:
                     e.alive = False
                     self.player.vy = S.STOMP_BOUNCE
                     pts = getattr(e, "score", S.STOMP_SCORE)
@@ -260,6 +280,19 @@ class Game:
                 else:
                     self.sfx.play("hurt")
         return False
+
+    def handle_shells(self):
+        """A sliding shell bowls over any other live enemy it overlaps."""
+        for k in self.level.enemies:
+            if not (isinstance(k, Koopa) and k.alive and k.state == "slide"):
+                continue
+            for e in self.level.enemies:
+                if e is not k and e.alive and k.rect.colliderect(e.rect):
+                    e.alive = False
+                    pts = getattr(e, "score", S.STOMP_SCORE)
+                    self.score += pts
+                    self.popup(e.rect.centerx, e.rect.top, f"+{pts}")
+                    self.sfx.play("stomp")
 
     # --- draw ---
     def draw(self):
