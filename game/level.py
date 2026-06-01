@@ -1,10 +1,12 @@
 import pygame
 from game import settings as S
+from game import assets
 from game.entities.block import Block, SOLID_KINDS
 from game.entities.coin import Coin
 from game.entities.goomba import Goomba
 from game.entities.flyer import Flyer
 from game.entities.koopa import Koopa
+from game.entities.boss import Boss
 from game.entities.flag import Flag
 
 
@@ -16,6 +18,8 @@ class Level:
         self.flag = None
         self.player_spawn = (0, 0)
         self.warps = []
+        self.lava = []
+        self.boss = None
         self._load(path)
         self.width_px = self.cols * S.TILE
         self.solids = [b.rect for b in self.blocks]
@@ -51,6 +55,10 @@ class Level:
                     self.enemies.append(Flyer(x, y))
                 elif ch == "K":
                     self.enemies.append(Koopa(x, y))
+                elif ch == "L":
+                    self.lava.append(pygame.Rect(x, y, S.TILE, S.TILE))
+                elif ch == "Z":
+                    self.boss = Boss(x, y)
                 elif ch == "F":
                     self.flag = Flag(x, y)
                 elif ch == "P":
@@ -64,6 +72,8 @@ class Level:
     def draw(self, surface, camera):
         for b in self.blocks:
             b.draw(surface, camera, self.area_type)
+        for r in self.lava:
+            assets.draw_lava(surface, camera.apply(r))
         for c in self.coins:
             if not c.collected:
                 c.draw(surface, camera)
@@ -72,3 +82,5 @@ class Level:
         for e in self.enemies:
             if e.alive:
                 e.draw(surface, camera)
+        if self.boss and self.boss.alive:
+            self.boss.draw(surface, camera)
