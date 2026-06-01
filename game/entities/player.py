@@ -15,6 +15,7 @@ class Player(Entity):
         self.last_jump_ms = -100000
         self.invuln_until = 0
 
+    # --- jumping ---
     def press_jump(self, now_ms):
         gap = now_ms - self.last_jump_ms
         self.last_jump_ms = now_ms
@@ -30,6 +31,27 @@ class Player(Entity):
         if self.vy < S.JUMP_CUTOFF:          # released while still rising fast
             self.vy = S.JUMP_CUTOFF
 
+    # --- power state ---
+    def grow(self):
+        if self.power == "small":
+            old_h = self.h
+            self.w, self.h = S.PLAYER_BIG
+            self.y -= (self.h - old_h)       # keep feet planted
+            self.power = "big"
+
+    def take_damage(self, now_ms):
+        if now_ms < self.invuln_until:
+            return False                      # invulnerable: ignore
+        if self.power == "big":
+            old_h = self.h
+            self.w, self.h = S.PLAYER_SMALL
+            self.y += (old_h - self.h)
+            self.power = "small"
+            self.invuln_until = now_ms + S.POWER_INVULN_MS
+            return False                      # shrank, survived
+        return True                           # small + vulnerable -> life lost
+
+    # --- per-frame ---
     def update(self, level):
         self._horizontal(pygame.key.get_pressed())
         self.vy = min(self.vy + S.GRAVITY, S.MAX_FALL)
@@ -58,4 +80,8 @@ class Player(Entity):
                 self.vx = min(0.0, self.vx + S.FRICTION)
 
     def draw(self, surface, camera):
+        # flicker while invulnerable
+        t = pygame.time.get_ticks()
+        if t < self.invuln_until and (t // 100) % 2 == 0:
+            return
         assets.draw_player(surface, camera.apply(self.rect), self.facing, self.power)
