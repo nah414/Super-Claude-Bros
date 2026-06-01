@@ -1,4 +1,4 @@
-# Claude's Platformer
+# Super Claude Bros
 
 A side-scrolling platformer starring the Claude mascot, built with Python + Pygame.
 
@@ -21,16 +21,16 @@ Bundle everything into a single double-clickable `.exe` (no Python needed to run
 
     python -m pip install pyinstaller pillow
     python tools/make_icon.py        # (re)generate the Claude icon -> tools/claude.ico
-    python -m PyInstaller --noconfirm --onefile --windowed --name ClaudePlatformer --icon tools/claude.ico --add-data "levels/level1.txt;levels" main.py
+    python -m PyInstaller --noconfirm --onefile --windowed --name SuperClaudeBros --icon tools/claude.ico --add-data "levels/level1.txt;levels" main.py
 
-The app is produced at `dist/ClaudePlatformer.exe` — copy it anywhere and run it.
+The app is produced at `dist/SuperClaudeBros.exe` — copy it anywhere and run it.
 
 Create a desktop shortcut with the icon (PowerShell, from the project root):
 
     $ws = New-Object -ComObject WScript.Shell
-    $sc = $ws.CreateShortcut("$([Environment]::GetFolderPath('Desktop'))\Claude's Platformer.lnk")
-    $sc.TargetPath = "$PWD\dist\ClaudePlatformer.exe"
-    $sc.IconLocation = "$PWD\dist\ClaudePlatformer.exe,0"
+    $sc = $ws.CreateShortcut("$([Environment]::GetFolderPath('Desktop'))\Super Claude Bros.lnk")
+    $sc.TargetPath = "$PWD\dist\SuperClaudeBros.exe"
+    $sc.IconLocation = "$PWD\dist\SuperClaudeBros.exe,0"
     $sc.Save()
 
 ## Tests

@@ -6,7 +6,7 @@ import sys
 WIDTH, HEIGHT = 960, 600
 TILE = 40
 FPS = 60
-TITLE = "Claude's Platformer"
+TITLE = "Super Claude Bros"
 
 # --- Colors (Anthropic brand) ---
 ORANGE    = (217, 119, 87)   # #d97757  hero, sparks, accents

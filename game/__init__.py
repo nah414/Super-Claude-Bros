@@ -1,1 +1,1 @@
-"""Claude's Platformer — game package."""
+"""Super Claude Bros — game package."""
