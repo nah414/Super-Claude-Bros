@@ -97,7 +97,7 @@ Rewrite `draw_player(surface, rect, facing, power)`: a small orange body with a 
 + smile), arms and legs, and the **Anthropic sunburst as a glowing head** above the body, all
 fitted to `rect`. Faces left/right via `facing`. The **big** variant is simply the same art
 fitted to the larger `PLAYER_BIG` rect, with a brighter/larger sunburst. Drawing fits the rect,
-so growth is automatic. The desktop icon is unchanged.
+so growth is automatic. **The desktop icon is updated to match**: `tools/make_icon.py` is rewritten to draw the Spark Hero, regenerating `tools/claude.ico`, after which the app is rebuilt so the embedded icon — and therefore the desktop shortcut — shows the new character.
 
 ### 6.2 Dark / night theme
 - `settings.py` gains the night palette (above).
@@ -180,6 +180,7 @@ tests) sets `enabled=False` and `play(name)` becomes a silent no-op. `game` call
 - `game/hud.py` — dark translucent bar
 - `levels/level1.txt` — add `M` boxes and `Y` flyers (keep it completable)
 - `requirements.txt` — add `numpy`
+- `tools/make_icon.py` — redraw the desktop icon as the Spark Hero, then rebuild the `.exe` so the shortcut updates
 
 ## 8. Testing
 
