@@ -15,6 +15,7 @@ class Player(Entity):
         self.last_jump_ms = -100000
         self.invuln_until = 0
         self.last_fire_ms = -100000
+        self.carrying = None             # a held Koopa shell, or None
 
     # --- jumping ---
     def press_jump(self, now_ms):
