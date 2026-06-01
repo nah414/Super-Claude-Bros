@@ -117,7 +117,8 @@ class Game:
 
     # --- draw ---
     def draw(self):
-        self.screen.fill(S.CREAM)
+        from game import assets
+        assets.draw_background(self.screen, self.camera)
         self.level.draw(self.screen, self.camera)
         self.player.draw(self.screen, self.camera)
         self.hud.draw(self.screen, self.score, self.sparks, self.lives)
