@@ -18,6 +18,12 @@ class Goomba(Entity):
         contacts = move_and_collide(self, level.solids)
         if contacts["left"] or contacts["right"]:
             self.direction *= -1
+        elif contacts["bottom"]:
+            # ledge detection: turn around rather than walk off a pit edge
+            ahead_x = self.rect.right + 1 if self.direction > 0 else self.rect.left - 1
+            foot_y = self.rect.bottom + 2
+            if not any(s.collidepoint(ahead_x, foot_y) for s in level.solids):
+                self.direction *= -1
 
     def draw(self, surface, camera):
         assets.draw_goomba(surface, camera.apply(self.rect))
