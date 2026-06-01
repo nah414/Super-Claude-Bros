@@ -13,6 +13,7 @@ Multiple levels across overworld + underground worlds, power-ups, enemies, and l
 - **Move:** Arrow keys or A/D
 - **Jump:** Space / Up / W (hold for higher; tap twice fast for a double-jump)
 - **Run:** hold Shift
+- **Throw fireball** (when fire-powered): F
 - **Start / continue** (title, level-complete, game-over): Enter
 - **Quit:** Esc
 
