@@ -75,6 +75,16 @@ CAVE_GROUND = (46, 44, 52)
 CAVE_EDGE   = (96, 92, 110)
 CAVE_CEIL   = (28, 26, 34)
 
+# --- Fire power ---
+FIRE             = (235, 96, 56)
+FIREBALL_SPEED   = 7.0
+FIREBALL_BOUNCE  = -7.0
+FIREBALL_LIFE    = 150
+FIRE_COOLDOWN_MS = 300
+MAX_FIREBALLS    = 2
+FIREBALL_SCORE   = 200
+FLOWER_SCORE     = 1000
+
 
 def resource_path(rel):
     """Resolve a data file path for both source runs and PyInstaller bundles.

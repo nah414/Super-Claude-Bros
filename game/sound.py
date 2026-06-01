@@ -45,6 +45,7 @@ class SoundFX:
             "power":  self._tone([523, 659, 784], 0.22),
             "hurt":   self._tone([392, 233], 0.22),
             "win":    self._tone([523, 659, 784, 1047], 0.40),
+            "fire":   self._tone([700, 500], 0.10),
         }
 
     def play(self, name):
