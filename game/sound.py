@@ -1,19 +1,18 @@
-"""Synthesized sound effects. Degrades to silent no-ops if audio/numpy is unavailable."""
+"""Synthesized sound effects (pure stdlib, no numpy).
+
+Builds short int16 PCM tones with `array`/`math` and feeds the raw buffer to
+pygame.mixer.Sound. Degrades to silent no-ops if there's no audio device.
+"""
+import array
+import math
 import pygame
 from game import settings as S
-
-try:
-    import numpy as np
-except Exception:
-    np = None
 
 
 class SoundFX:
     def __init__(self):
         self.enabled = False
         self.sounds = {}
-        if np is None:
-            return
         try:
             pygame.mixer.pre_init(S.SAMPLE_RATE, -16, 1)
             pygame.mixer.init()
@@ -24,10 +23,18 @@ class SoundFX:
 
     def _tone(self, freqs, dur=0.12, vol=0.35):
         n = int(S.SAMPLE_RATE * dur)
-        t = np.linspace(0, dur, n, False)
-        wave = sum(np.sin(2 * np.pi * f * t) for f in freqs) / len(freqs)
-        wave *= np.linspace(1, 0, n) ** 1.5             # decay envelope
-        return pygame.sndarray.make_sound((wave * vol * 32767).astype(np.int16))
+        amp = vol * 32767
+        k = len(freqs)
+        buf = array.array("h", bytes(2 * n))     # n signed-16 samples, zeroed
+        for i in range(n):
+            t = i / S.SAMPLE_RATE
+            s = 0.0
+            for f in freqs:
+                s += math.sin(2 * math.pi * f * t)
+            s /= k
+            v = int(s * amp * (1.0 - i / n) ** 1.5)   # decay envelope
+            buf[i] = 32767 if v > 32767 else (-32768 if v < -32768 else v)
+        return pygame.mixer.Sound(buffer=buf.tobytes())
 
     def _build(self):
         self.sounds = {
