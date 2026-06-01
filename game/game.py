@@ -63,6 +63,7 @@ class Game:
             e.update(self.level)
         self.camera.update(self.player.rect)
         self.handle_coins()
+        self.handle_question_blocks()
         if self.handle_enemies():
             return                       # player got hit; stop this frame
         self.handle_flag()
@@ -73,6 +74,16 @@ class Game:
         for c in self.level.coins:
             if not c.collected and self.player.rect.colliderect(c.rect):
                 c.collected = True
+                self.sparks += 1
+                self.score += 100
+
+    def handle_question_blocks(self):
+        if self.player.vy >= 0:
+            return                       # only when moving upward
+        head = self.player.rect.move(0, -2)
+        for b in self.level.blocks:
+            if b.kind == "?" and not b.used and head.colliderect(b.rect):
+                b.used = True
                 self.sparks += 1
                 self.score += 100
 
