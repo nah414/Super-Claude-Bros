@@ -128,6 +128,26 @@ def draw_goomba(surface, rect):
     pygame.draw.ellipse(surface, S.SAGE, (rect.centerx + 1, rect.bottom - 5, rect.w // 2 - 1, 5))
 
 
+def draw_koopa(surface, rect, state="walk", direction=1):
+    # shell occupies the lower band when walking (head/feet show above-front)
+    shell = pygame.Rect(rect.x, rect.y + (5 if state == "walk" else 0),
+                        rect.w, rect.h - (5 if state == "walk" else 0))
+    if state == "walk":
+        hx = rect.right - 3 if direction > 0 else rect.left + 3
+        pygame.draw.circle(surface, S.CREAM, (hx, rect.y + 7), 6)
+        pygame.draw.circle(surface, S.INK, (hx, rect.y + 7), 6, 1)
+        pygame.draw.circle(surface, S.INK, (hx + direction * 2, rect.y + 6), 1)   # eye
+        pygame.draw.ellipse(surface, S.SAGE, (rect.left, rect.bottom - 5, rect.w // 2 - 1, 5))
+        pygame.draw.ellipse(surface, S.SAGE, (rect.centerx + 1, rect.bottom - 5, rect.w // 2 - 1, 5))
+    pygame.draw.ellipse(surface, S.KOOPA_SHELL, shell)
+    pygame.draw.ellipse(surface, S.MIDGRAY, shell, 1)        # light rim for night visibility
+    pygame.draw.ellipse(surface, S.INK, shell, 2)
+    pygame.draw.ellipse(surface, S.CREAM, shell.inflate(-shell.w // 2, -shell.h // 2))   # shell hub
+    if state == "slide":
+        pygame.draw.line(surface, S.INK, (shell.left + 3, shell.centery),
+                         (shell.right - 3, shell.centery), 1)    # spin streak
+
+
 def draw_flag(surface, rect):
     pole = pygame.Rect(rect.centerx - 3, rect.top, 6, rect.h)
     pygame.draw.rect(surface, S.CREAM, pole)                # cream so it shows on the night sky

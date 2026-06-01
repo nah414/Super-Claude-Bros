@@ -85,6 +85,13 @@ MAX_FIREBALLS    = 2
 FIREBALL_SCORE   = 200
 FLOWER_SCORE     = 1000
 
+# --- Koopa ---
+KOOPA_SPEED         = 1.3
+SHELL_SPEED         = 6.0
+SHELL_KICK_COOLDOWN = 12       # frames the kicker is safe right after a kick
+KOOPA_SCORE         = 200
+KOOPA_SHELL         = (96, 156, 76)
+
 
 def resource_path(rel):
     """Resolve a data file path for both source runs and PyInstaller bundles.
