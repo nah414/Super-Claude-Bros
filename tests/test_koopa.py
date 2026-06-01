@@ -29,6 +29,16 @@ def test_walk_turns_at_ledge():
     assert k.rect.bottom <= 13 * T + 8         # stayed on the platform, did not fall
 
 
+def test_held_koopa_skips_update():
+    lvl = type("L", (), {"solids": []})()
+    k = Koopa(100, 100)
+    k.held = True
+    y0 = k.y
+    for _ in range(10):
+        k.update(lvl)
+    assert k.y == y0            # no gravity/motion while held
+
+
 def test_sliding_shell_reverses_on_wall():
     T = S.TILE
     lvl = type("L", (), {"solids": [pygame.Rect(0, 13 * T, 20 * T, T),

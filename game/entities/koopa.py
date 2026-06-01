@@ -19,6 +19,7 @@ class Koopa(Entity):
         self.direction = -1
         self.kick_cooldown = 0
         self.score = S.KOOPA_SCORE
+        self.held = False
 
     def player_hit(self, from_top, player_cx):
         """Resolve a player collision; mutate state and return the outcome."""
@@ -44,6 +45,8 @@ class Koopa(Entity):
         return "hurt"
 
     def update(self, level):
+        if self.held:
+            return                       # carried: position is driven by the game
         if self.kick_cooldown > 0:
             self.kick_cooldown -= 1
         self.vy = min(self.vy + S.GRAVITY, S.MAX_FALL)

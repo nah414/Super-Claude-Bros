@@ -90,6 +90,7 @@ class Game:
         self.sfx.play("token")
 
     def lose_life(self):
+        self.drop_shell()
         self.carry_power = "small"
         self.lives -= 1
         self.sfx.play("hurt")
@@ -137,6 +138,8 @@ class Game:
                         self.fireballs.append(Fireball(self.player.rect.centerx, self.player.rect.centery, self.player.facing))
                         self.player.record_fire(self.now())
                         self.sfx.play("fire")
+                elif event.key == pygame.K_e and self.state == "PLAYING":
+                    self.grab_or_throw()
             elif event.type == pygame.KEYUP:
                 if event.key in JUMP_KEYS and self.state == "PLAYING":
                     self.player.release_jump()
@@ -176,6 +179,7 @@ class Game:
         self.handle_mushrooms()
         self.handle_flowers()
         self.handle_fireballs()
+        self.handle_carry()
         self.handle_shells()
         if self.handle_enemies():
             return
@@ -244,9 +248,57 @@ class Game:
                     self.sfx.play("stomp")
         self.fireballs = [f for f in self.fireballs if f.alive]
 
+    def grab_or_throw(self):
+        if self.player.carrying is not None:
+            self.throw_shell()
+            return
+        reach = self.player.rect.inflate(10, 6)
+        for e in self.level.enemies:
+            if isinstance(e, Koopa) and e.alive and e.state == "shell" and not e.held \
+                    and reach.colliderect(e.rect):
+                e.held = True
+                e.vx = e.vy = 0.0
+                self.player.carrying = e
+                self.sfx.play("power")
+                break
+
+    def throw_shell(self):
+        k = self.player.carrying
+        self.player.carrying = None
+        k.held = False
+        k.state = "slide"
+        k.direction = self.player.facing
+        k.kick_cooldown = S.SHELL_KICK_COOLDOWN
+        self.sfx.play("stomp")
+
+    def drop_shell(self):
+        k = self.player.carrying
+        if k is not None:
+            self.player.carrying = None
+            k.held = False
+            k.state = "shell"
+
+    def handle_carry(self):
+        k = self.player.carrying
+        if k is None:
+            return
+        if not k.alive:
+            self.player.carrying = None
+            return
+        p = self.player
+        k.x = float(p.rect.right - 6) if p.facing > 0 else float(p.rect.left - k.w + 6)
+        k.y = float(p.rect.centery - k.h // 2)
+        for e in self.level.enemies:
+            if e is not k and e.alive and k.rect.colliderect(e.rect):
+                e.alive = False
+                pts = getattr(e, "score", S.STOMP_SCORE)
+                self.score += pts
+                self.popup(e.rect.centerx, e.rect.top, f"+{pts}")
+                self.sfx.play("stomp")
+
     def handle_enemies(self):
         for e in self.level.enemies:
-            if not e.alive or not self.player.rect.colliderect(e.rect):
+            if not e.alive or e is self.player.carrying or not self.player.rect.colliderect(e.rect):
                 continue
             from_top = self.player.vy > 0 and self.player.rect.bottom - e.rect.top < 20
             if isinstance(e, Koopa):
@@ -309,6 +361,8 @@ class Game:
             for f in self.fireballs:
                 f.draw(self.screen, self.camera)
             self.player.draw(self.screen, self.camera)
+            if self.player.carrying is not None:
+                self.player.carrying.draw(self.screen, self.camera)   # held shell on top
             for fx in self.effects:
                 fx.draw(self.screen, self.camera, self.hud.font)
             self.hud.draw(self.screen, self.score, self.tokens, self.lives, levelset.world_label(self.index))

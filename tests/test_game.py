@@ -56,3 +56,50 @@ def test_power_persists_across_levels_and_resets_on_death():
     assert g.carry_power == "fire" and g.player.power == "fire"
     g.lose_life()
     assert g.carry_power == "small"
+
+
+def _shell_game():
+    from game.entities.koopa import Koopa
+    g = Game(); g.new_game(); g.state = "PLAYING"; g.level.enemies.clear()
+    k = Koopa(300, 300); k.state = "shell"
+    g.level.enemies.append(k)
+    return g, k
+
+
+def test_grab_then_throw_slides_in_facing_dir():
+    g, k = _shell_game()
+    g.player.x = float(k.rect.left - g.player.w + 8)
+    g.player.y = float(k.rect.centery - g.player.h // 2)
+    g.player.facing = 1
+    g.grab_or_throw()
+    assert g.player.carrying is k and k.held
+    g.grab_or_throw()                                  # press E again -> throw
+    assert g.player.carrying is None and not k.held
+    assert k.state == "slide" and k.direction == 1 and k.kick_cooldown > 0
+
+
+def test_cannot_grab_walking_koopa():
+    g, k = _shell_game()
+    k.state = "walk"
+    g.player.x = float(k.rect.x); g.player.y = float(k.rect.y)
+    g.grab_or_throw()
+    assert g.player.carrying is None
+
+
+def test_carried_shell_battering_rams_enemy():
+    from game.entities.goomba import Goomba
+    g, k = _shell_game()
+    k.held = True; g.player.carrying = k
+    g.player.x = 300.0; g.player.y = 300.0; g.player.facing = 1
+    g.handle_carry()                                   # position the held shell
+    gm = Goomba(k.rect.x, k.rect.y)                     # overlap it
+    g.level.enemies.append(gm)
+    g.handle_carry()
+    assert gm.alive is False
+
+
+def test_damage_drops_carried_shell():
+    g, k = _shell_game()
+    k.held = True; g.player.carrying = k
+    g.drop_shell()
+    assert g.player.carrying is None and not k.held and k.state == "shell"
