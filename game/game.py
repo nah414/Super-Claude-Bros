@@ -167,9 +167,9 @@ class Game:
                 self.gain_tokens(1, c.rect.centerx, c.rect.top)
 
     def handle_boxes(self):
-        if self.player.vy >= 0:
-            return
-        head = self.player.rect.move(0, -2)
+        if self.player.vy > 0:
+            return                       # only when rising or just bonked the head (vy <= 0)
+        head = self.player.rect.move(0, -3)
         for b in self.level.blocks:
             if b.used or not head.colliderect(b.rect):
                 continue
