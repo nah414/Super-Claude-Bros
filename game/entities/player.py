@@ -14,6 +14,7 @@ class Player(Entity):
         self.air_jumped = False
         self.last_jump_ms = -100000
         self.invuln_until = 0
+        self.last_fire_ms = -100000
 
     # --- jumping ---
     def press_jump(self, now_ms):
@@ -39,16 +40,33 @@ class Player(Entity):
             self.y -= (self.h - old_h)       # keep feet planted
             self.power = "big"
 
+    def become_fire(self):
+        if self.power == "small":
+            old_h = self.h
+            self.w, self.h = S.PLAYER_BIG
+            self.y -= (self.h - old_h)
+        self.power = "fire"
+
+    def can_shoot(self, now_ms):
+        return self.power == "fire" and now_ms - self.last_fire_ms >= S.FIRE_COOLDOWN_MS
+
+    def record_fire(self, now_ms):
+        self.last_fire_ms = now_ms
+
     def take_damage(self, now_ms):
         if now_ms < self.invuln_until:
             return False                      # invulnerable: ignore
+        if self.power == "fire":
+            self.power = "big"                # tier-drop: fire -> big (same size)
+            self.invuln_until = now_ms + S.POWER_INVULN_MS
+            return False
         if self.power == "big":
             old_h = self.h
             self.w, self.h = S.PLAYER_SMALL
             self.y += (old_h - self.h)
             self.power = "small"
             self.invuln_until = now_ms + S.POWER_INVULN_MS
-            return False                      # shrank, survived
+            return False
         return True                           # small + vulnerable -> life lost
 
     # --- per-frame ---
