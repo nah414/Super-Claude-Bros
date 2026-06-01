@@ -123,3 +123,26 @@ def draw_flag(surface, rect):
            (rect.centerx + 30, rect.top + 14),
            (rect.centerx + 3, rect.top + 22)]
     pygame.draw.polygon(surface, S.ORANGE, pts)
+
+
+def draw_mushroom(surface, rect):
+    cap = pygame.Rect(rect.x, rect.y, rect.w, int(rect.h * 0.6))
+    stem = pygame.Rect(rect.x + rect.w // 4, rect.centery, rect.w // 2, rect.h // 2)
+    pygame.draw.rect(surface, S.CREAM, stem, border_radius=3)
+    pygame.draw.rect(surface, S.INK, stem, 2, border_radius=3)
+    pygame.draw.ellipse(surface, S.ORANGE, cap)
+    pygame.draw.ellipse(surface, S.INK, cap, 2)
+    pygame.draw.circle(surface, S.CREAM, (cap.centerx, cap.centery), 4)
+    pygame.draw.circle(surface, S.CREAM, (cap.left + 7, cap.centery + 3), 3)
+    pygame.draw.circle(surface, S.CREAM, (cap.right - 7, cap.centery + 3), 3)
+
+
+def draw_flyer(surface, rect):
+    body = rect.inflate(-rect.w // 4, 0)
+    pygame.draw.polygon(surface, S.MIDGRAY, [(rect.left, rect.centery), (body.left, rect.top), (body.left, rect.bottom)])
+    pygame.draw.polygon(surface, S.MIDGRAY, [(rect.right, rect.centery), (body.right, rect.top), (body.right, rect.bottom)])
+    pygame.draw.ellipse(surface, S.BLUE, body)
+    pygame.draw.ellipse(surface, S.INK, body, 2)
+    for ex in (body.centerx - 5, body.centerx + 5):
+        pygame.draw.circle(surface, S.CREAM, (ex, rect.centery - 2), 3)
+        pygame.draw.circle(surface, S.INK, (ex, rect.centery - 2), 1)

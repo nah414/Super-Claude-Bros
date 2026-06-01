@@ -2,6 +2,7 @@ from game import settings as S
 from game.entities.block import Block, SOLID_KINDS
 from game.entities.coin import Coin
 from game.entities.goomba import Goomba
+from game.entities.flyer import Flyer
 from game.entities.flag import Flag
 
 
@@ -31,6 +32,8 @@ class Level:
                     self.coins.append(Coin(x, y))
                 elif ch == "G":
                     self.enemies.append(Goomba(x, y))
+                elif ch == "Y":
+                    self.enemies.append(Flyer(x, y))
                 elif ch == "F":
                     self.flag = Flag(x, y)
                 elif ch == "P":
