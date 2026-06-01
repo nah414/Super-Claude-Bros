@@ -26,7 +26,7 @@ class Game:
         self.load_level()
 
     def load_level(self):
-        self.level = Level("levels/level1.txt")
+        self.level = Level(S.resource_path("levels/level1.txt"))
         self.player = Player(*self.level.player_spawn)
         self.camera = Camera(self.level.width_px)
         self.state = "PLAYING"

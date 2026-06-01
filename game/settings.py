@@ -1,4 +1,6 @@
 """Single source of truth for every tunable constant."""
+import os
+import sys
 
 # --- Window ---
 WIDTH, HEIGHT = 960, 600
@@ -30,3 +32,16 @@ STOMP_BOUNCE  = -8.0
 # --- Gameplay ---
 START_LIVES = 3
 PIT_DEATH_Y = HEIGHT + 80   # falling below this = death
+
+
+def resource_path(rel):
+    """Resolve a data file path for both source runs and PyInstaller bundles.
+
+    When frozen by PyInstaller (one-file), bundled data is unpacked to a temp
+    dir exposed as sys._MEIPASS. From source, paths resolve relative to the
+    project root (this file's parent's parent), so the game works regardless of
+    the current working directory.
+    """
+    base = getattr(sys, "_MEIPASS",
+                   os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    return os.path.join(base, rel)
