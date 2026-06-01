@@ -96,10 +96,11 @@ def draw_player(surface, rect, facing=1, power="small"):
                       [(body.centerx - sm + ox, smy), (body.centerx + ox, smy + 4), (body.centerx + sm + ox, smy)], 2)
     # bold sunburst spark head (the Claude identity)
     hx, hy = rect.centerx, rect.y + int(h * 0.17)
-    R = int(w * 0.60) if power == "big" else int(w * 0.56)
-    pygame.draw.line(surface, S.ORANGE, (hx, hy + int(w*0.24)), (hx, body.y), 3)   # neck
-    _burst(surface, hx, hy, R, S.ORANGE, 4)
-    pygame.draw.circle(surface, S.ORANGE, (hx, hy), max(7, int(w*0.30)))
+    R = int(w * 0.60) if power in ("big", "fire") else int(w * 0.56)
+    spark = S.FIRE if power == "fire" else S.ORANGE
+    pygame.draw.line(surface, spark, (hx, hy + int(w*0.24)), (hx, body.y), 3)   # neck
+    _burst(surface, hx, hy, R, spark, 4)
+    pygame.draw.circle(surface, spark, (hx, hy), max(7, int(w*0.30)))
     pygame.draw.circle(surface, S.INK, (hx, hy), max(7, int(w*0.30)), 2)
     pygame.draw.circle(surface, S.CREAM, (hx, hy), max(3, int(w*0.14)))
 
@@ -159,3 +160,22 @@ def draw_flyer(surface, rect):
     for ex in (body.centerx - 5, body.centerx + 5):
         pygame.draw.circle(surface, S.CREAM, (ex, rect.centery - 2), 3)
         pygame.draw.circle(surface, S.INK, (ex, rect.centery - 2), 1)
+
+
+def draw_fireflower(surface, rect):
+    stem = pygame.Rect(rect.centerx - 2, rect.centery, 4, rect.h // 2)
+    pygame.draw.rect(surface, S.SAGE, stem)
+    cx, cy, r = rect.centerx, rect.y + rect.h // 3, max(4, rect.w // 3)
+    for a in range(0, 360, 60):
+        rad = math.radians(a)
+        pygame.draw.circle(surface, S.FIRE, (int(cx + r * math.cos(rad)), int(cy + r * math.sin(rad))), r)
+    pygame.draw.circle(surface, S.CREAM, (cx, cy), max(2, r // 2))
+    pygame.draw.circle(surface, S.INK, (cx, cy), max(2, r // 2), 1)
+
+
+def draw_fireball(surface, rect):
+    cx, cy = rect.center
+    r = rect.w // 2
+    pygame.draw.circle(surface, S.FIRE, (cx, cy), r)
+    pygame.draw.circle(surface, S.ORANGE, (cx, cy), max(2, r * 2 // 3))
+    pygame.draw.circle(surface, S.CREAM, (cx, cy), max(1, r // 3))
