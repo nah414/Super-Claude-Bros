@@ -18,9 +18,17 @@ class Level:
         self.solids = [b.rect for b in self.blocks]
 
     def _load(self, path):
+        self.area_type = "overworld"
         with open(path, encoding="utf-8") as f:
-            rows = [line.rstrip("\n") for line in f]
-        rows = [r for r in rows if r != ""]
+            raw = [line.rstrip("\n") for line in f]
+        rows = []
+        for line in raw:
+            if line.startswith("#"):
+                if "type:" in line:
+                    self.area_type = line.split("type:", 1)[1].strip()
+                continue
+            if line != "":
+                rows.append(line)
         self.rows = len(rows)
         self.cols = max((len(r) for r in rows), default=0)
         for j, row in enumerate(rows):
@@ -41,7 +49,7 @@ class Level:
 
     def draw(self, surface, camera):
         for b in self.blocks:
-            b.draw(surface, camera)
+            b.draw(surface, camera, self.area_type)
         for c in self.coins:
             if not c.collected:
                 c.draw(surface, camera)

@@ -67,6 +67,13 @@ PIT_DEATH_Y = HEIGHT + 80   # falling below this = death
 
 # --- Audio ---
 SAMPLE_RATE = 44100
+MUSIC_VOLUME = 0.5
+
+# --- Underground theme ---
+CAVE_BG     = (12, 12, 14)
+CAVE_GROUND = (46, 44, 52)
+CAVE_EDGE   = (96, 92, 110)
+CAVE_CEIL   = (28, 26, 34)
 
 
 def resource_path(rel):

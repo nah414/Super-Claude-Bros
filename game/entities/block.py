@@ -11,5 +11,5 @@ class Block(Entity):
         self.kind = kind
         self.used = False     # for '?'/'M' boxes once bumped
 
-    def draw(self, surface, camera):
-        assets.draw_block(surface, camera.apply(self.rect), self.kind, self.used)
+    def draw(self, surface, camera, area_type="overworld"):
+        assets.draw_block(surface, camera.apply(self.rect), self.kind, self.used, area_type)

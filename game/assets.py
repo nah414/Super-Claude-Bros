@@ -10,7 +10,11 @@ _STARS = [(57, 60), (140, 38), (210, 90), (320, 50), (440, 110), (560, 44),
           (640, 95), (740, 70), (840, 36), (900, 120), (480, 150), (260, 150)]
 
 
-def draw_background(surface, camera):
+def draw_background(surface, camera, area_type="overworld"):
+    if area_type == "underground":
+        surface.fill(S.CAVE_BG)
+        pygame.draw.rect(surface, S.CAVE_CEIL, (0, 0, S.WIDTH, 30))   # dim cave ceiling band
+        return
     surface.fill(S.NIGHT)
     pygame.draw.circle(surface, S.MOON, (S.WIDTH - 90, 90), 34)
     pygame.draw.circle(surface, S.NIGHT, (S.WIDTH - 78, 82), 30)   # crescent bite
@@ -30,14 +34,16 @@ def _question_font():
     return _qfont
 
 
-def draw_block(surface, rect, kind, used=False):
+def draw_block(surface, rect, kind, used=False, area_type="overworld"):
+    ground = S.CAVE_GROUND if area_type == "underground" else S.GROUND_DARK
+    edge = S.CAVE_EDGE if area_type == "underground" else S.GROUND_EDGE
     if kind == "X":                       # solid ground
-        pygame.draw.rect(surface, S.GROUND_DARK, rect)
-        pygame.draw.rect(surface, S.GROUND_EDGE, (rect.x, rect.y, rect.w, 4))
+        pygame.draw.rect(surface, ground, rect)
+        pygame.draw.rect(surface, edge, (rect.x, rect.y, rect.w, 4))
         pygame.draw.rect(surface, S.INK, rect, 1)
     elif kind == "=":                     # floating platform
-        pygame.draw.rect(surface, S.GROUND_DARK, rect, border_radius=6)
-        pygame.draw.rect(surface, S.GROUND_EDGE, (rect.x + 3, rect.y + 2, rect.w - 6, 4))
+        pygame.draw.rect(surface, ground, rect, border_radius=6)
+        pygame.draw.rect(surface, edge, (rect.x + 3, rect.y + 2, rect.w - 6, 4))
         pygame.draw.rect(surface, S.INK, rect, 1, border_radius=6)
     elif kind == "B":                     # brick
         pygame.draw.rect(surface, S.BRICK_DARK, rect)
