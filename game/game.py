@@ -1,16 +1,19 @@
 import pygame
 from game import settings as S
 from game import assets
+from game import levelset
 from game.level import Level
 from game.camera import Camera
 from game.entities.player import Player
 from game.entities.mushroom import Mushroom
 from game.hud import HUD
 from game.sound import SoundFX
+from game.music import MusicManager
 from game.scoring import bonus_lives
 from game.effects import ScorePopup, RisingToken
 
 JUMP_KEYS = (pygame.K_SPACE, pygame.K_UP, pygame.K_w)
+INTRO_FRAMES = 72        # ~1.2s at 60fps
 
 
 class Game:
@@ -21,18 +24,31 @@ class Game:
         self.clock = pygame.time.Clock()
         self.hud = HUD()
         self.big_font = pygame.font.SysFont("Poppins,Arial", 56, bold=True)
+        self.small_font = pygame.font.SysFont("Poppins,Arial", 26, bold=True)
         self.sfx = SoundFX()
+        self.music = MusicManager()
         self.running = True
-        self.reset_game()
+        self.state = "TITLE"
 
-    def reset_game(self):
+    # --- lifecycle ---
+    def new_game(self):
         self.score = 0
         self.tokens = 0
         self.lives = S.START_LIVES
-        self.load_level()
+        self.index = 0
+        self.start_level()
 
-    def load_level(self):
-        self.level = Level(S.resource_path("levels/level1.txt"))
+    def start_level(self):
+        self.level = Level(S.resource_path("levels/" + levelset.level_file(self.index)))
+        self.player = Player(*self.level.player_spawn)
+        self.camera = Camera(self.level.width_px)
+        self.mushrooms = []
+        self.effects = []
+        self.intro_timer = INTRO_FRAMES
+        self.music.play_for_level(self.index)
+        self.state = "LEVEL_INTRO"
+
+    def respawn(self):
         self.player = Player(*self.level.player_spawn)
         self.camera = Camera(self.level.width_px)
         self.mushrooms = []
@@ -51,9 +67,9 @@ class Game:
         self.tokens += n
         self.score += n * S.TOKEN_SCORE
         self.popup(x, y - 16, f"+{n * S.TOKEN_SCORE}")
-        gained = bonus_lives(old, self.tokens)
-        if gained:
-            self.lives += gained
+        g = bonus_lives(old, self.tokens)
+        if g:
+            self.lives += g
             self.popup(x, y - 40, "1-UP")
             self.sfx.play("power")
         self.sfx.play("token")
@@ -62,10 +78,10 @@ class Game:
         self.lives -= 1
         self.sfx.play("hurt")
         if self.lives <= 0:
+            self.music.stop()
             self.state = "GAME_OVER"
         else:
-            self.player = Player(*self.level.player_spawn)
-            self.camera.update(self.player.rect)
+            self.respawn()
 
     # --- main loop ---
     def run(self):
@@ -73,6 +89,10 @@ class Game:
             self.handle_events()
             if self.state == "PLAYING":
                 self.update()
+            elif self.state == "LEVEL_INTRO":
+                self.intro_timer -= 1
+                if self.intro_timer <= 0:
+                    self.state = "PLAYING"
             self.draw()
             self.clock.tick(S.FPS)
         pygame.quit()
@@ -84,15 +104,30 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
+                elif event.key == pygame.K_RETURN:
+                    if self.state == "TITLE":
+                        self.new_game()
+                    elif self.state in ("GAME_OVER", "GAME_COMPLETE"):
+                        self.music.stop()
+                        self.state = "TITLE"
+                    elif self.state == "LEVEL_COMPLETE":
+                        self.advance()
                 elif event.key in JUMP_KEYS and self.state == "PLAYING":
                     before = self.player.air_jumped
                     self.player.press_jump(self.now())
                     self.sfx.play("double" if (self.player.air_jumped and not before) else "jump")
-                elif event.key == pygame.K_RETURN and self.state in ("LEVEL_COMPLETE", "GAME_OVER"):
-                    self.reset_game()
             elif event.type == pygame.KEYUP:
                 if event.key in JUMP_KEYS and self.state == "PLAYING":
                     self.player.release_jump()
+
+    def advance(self):
+        nxt = levelset.next_index(self.index)
+        if nxt is None:
+            self.music.stop()
+            self.state = "GAME_COMPLETE"
+        else:
+            self.index = nxt
+            self.start_level()
 
     # --- update ---
     def update(self):
@@ -111,7 +146,10 @@ class Game:
         self.handle_mushrooms()
         if self.handle_enemies():
             return
-        self.handle_flag()
+        if self.level.flag and self.player.rect.colliderect(self.level.flag.rect):
+            self.sfx.play("win")
+            self.state = "LEVEL_COMPLETE"
+            return
         if self.player.y > S.PIT_DEATH_Y:
             self.lose_life()
 
@@ -163,36 +201,47 @@ class Game:
                     self.lose_life()
                     return True
                 else:
-                    self.sfx.play("hurt")        # shrank, survived
+                    self.sfx.play("hurt")
         return False
-
-    def handle_flag(self):
-        if self.level.flag and self.player.rect.colliderect(self.level.flag.rect):
-            if self.state != "LEVEL_COMPLETE":
-                self.sfx.play("win")
-            self.state = "LEVEL_COMPLETE"
 
     # --- draw ---
     def draw(self):
-        assets.draw_background(self.screen, self.camera)
-        self.level.draw(self.screen, self.camera)
-        for m in self.mushrooms:
-            m.draw(self.screen, self.camera)
-        self.player.draw(self.screen, self.camera)
-        for fx in self.effects:
-            fx.draw(self.screen, self.camera, self.hud.font)
-        self.hud.draw(self.screen, self.score, self.tokens, self.lives)
-        if self.state == "LEVEL_COMPLETE":
-            self.banner("LEVEL COMPLETE!", "Press ENTER to play again")
-        elif self.state == "GAME_OVER":
-            self.banner("GAME OVER", "Press ENTER to retry")
+        if self.state == "TITLE":
+            self.draw_title()
+        else:
+            area = self.level.area_type
+            assets.draw_background(self.screen, self.camera, area)
+            self.level.draw(self.screen, self.camera)
+            for m in self.mushrooms:
+                m.draw(self.screen, self.camera)
+            self.player.draw(self.screen, self.camera)
+            for fx in self.effects:
+                fx.draw(self.screen, self.camera, self.hud.font)
+            self.hud.draw(self.screen, self.score, self.tokens, self.lives, levelset.world_label(self.index))
+            if self.state == "LEVEL_INTRO":
+                self.banner(f"WORLD {levelset.world_label(self.index)}", "")
+            elif self.state == "LEVEL_COMPLETE":
+                self.banner("LEVEL COMPLETE!", "Press ENTER")
+            elif self.state == "GAME_OVER":
+                self.banner("GAME OVER", "Press ENTER for title")
+            elif self.state == "GAME_COMPLETE":
+                self.banner("YOU SAVED THE DAY!", "Press ENTER for title")
         pygame.display.flip()
+
+    def draw_title(self):
+        self.screen.fill(S.NIGHT)
+        assets.draw_player(self.screen, pygame.Rect(S.WIDTH // 2 - 30, 150, 60, 88), 1, "big")
+        t = self.big_font.render("SUPER CLAUDE BROS", True, S.ORANGE)
+        s = self.small_font.render("Press ENTER to play", True, S.CREAM)
+        self.screen.blit(t, t.get_rect(center=(S.WIDTH // 2, 300)))
+        self.screen.blit(s, s.get_rect(center=(S.WIDTH // 2, 360)))
 
     def banner(self, title, subtitle):
         overlay = pygame.Surface((S.WIDTH, S.HEIGHT), pygame.SRCALPHA)
-        overlay.fill((20, 20, 19, 170))
+        overlay.fill((20, 20, 19, 150))
         self.screen.blit(overlay, (0, 0))
         t = self.big_font.render(title, True, S.ORANGE)
-        s = self.hud.font.render(subtitle, True, S.CREAM)
-        self.screen.blit(t, t.get_rect(center=(S.WIDTH // 2, S.HEIGHT // 2 - 20)))
-        self.screen.blit(s, s.get_rect(center=(S.WIDTH // 2, S.HEIGHT // 2 + 30)))
+        self.screen.blit(t, t.get_rect(center=(S.WIDTH // 2, S.HEIGHT // 2 - 16)))
+        if subtitle:
+            s = self.small_font.render(subtitle, True, S.CREAM)
+            self.screen.blit(s, s.get_rect(center=(S.WIDTH // 2, S.HEIGHT // 2 + 34)))
