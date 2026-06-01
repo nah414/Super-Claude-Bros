@@ -10,15 +10,24 @@ class Player(Entity):
         super().__init__(x, y, S.PLAYER_SMALL[0], S.PLAYER_SMALL[1])
         self.on_ground = False
         self.facing = 1
-        self.power = "small"      # extension point for power-ups
+        self.power = "small"
+        self.air_jumped = False
+        self.last_jump_ms = -100000
+        self.invuln_until = 0
 
-    def start_jump(self):
+    def press_jump(self, now_ms):
+        gap = now_ms - self.last_jump_ms
+        self.last_jump_ms = now_ms
         if self.on_ground:
             self.vy = S.JUMP_VELOCITY
             self.on_ground = False
+            self.air_jumped = False
+        elif not self.air_jumped and gap <= S.DOUBLE_TAP_MS:
+            self.vy = S.DOUBLE_JUMP_VELOCITY
+            self.air_jumped = True
 
-    def end_jump(self):
-        if self.vy < S.JUMP_CUTOFF:      # released while still rising fast
+    def release_jump(self):
+        if self.vy < S.JUMP_CUTOFF:          # released while still rising fast
             self.vy = S.JUMP_CUTOFF
 
     def update(self, level):
@@ -26,6 +35,8 @@ class Player(Entity):
         self.vy = min(self.vy + S.GRAVITY, S.MAX_FALL)
         contacts = move_and_collide(self, level.solids)
         self.on_ground = contacts["bottom"]
+        if self.on_ground:
+            self.air_jumped = False          # reset double-jump on landing
 
     def _horizontal(self, keys):
         left = keys[pygame.K_LEFT] or keys[pygame.K_a]

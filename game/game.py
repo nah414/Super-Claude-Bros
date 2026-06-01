@@ -49,12 +49,12 @@ class Game:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
                 elif event.key in JUMP_KEYS and self.state == "PLAYING":
-                    self.player.start_jump()
+                    self.player.press_jump(pygame.time.get_ticks())
                 elif event.key == pygame.K_RETURN and self.state in ("LEVEL_COMPLETE", "GAME_OVER"):
                     self.reset_game()
             elif event.type == pygame.KEYUP:
                 if event.key in JUMP_KEYS and self.state == "PLAYING":
-                    self.player.end_jump()
+                    self.player.release_jump()
 
     # --- update ---
     def update(self):
