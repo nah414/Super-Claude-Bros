@@ -35,3 +35,50 @@ def draw_block(surface, rect, kind, used=False):
         if not used:
             q = _question_font().render("?", True, S.CREAM)
             surface.blit(q, q.get_rect(center=rect.center))
+
+
+def draw_player(surface, rect, facing=1):
+    pygame.draw.rect(surface, S.ORANGE, rect, border_radius=10)
+    pygame.draw.rect(surface, S.INK, rect, 2, border_radius=10)
+    ox = 4 * facing
+    eye_y = rect.y + rect.h // 3
+    for ex in (rect.centerx - 7 + ox, rect.centerx + 7 + ox):
+        pygame.draw.circle(surface, S.CREAM, (ex, eye_y), 5)
+        pygame.draw.circle(surface, S.INK, (ex, eye_y), 2)
+    mx, my = rect.centerx + ox, eye_y + 11
+    pygame.draw.lines(surface, S.INK, False,
+                      [(mx - 7, my), (mx, my + 4), (mx + 7, my)], 2)
+    pygame.draw.ellipse(surface, S.INK, (rect.left + 3, rect.bottom - 6, 12, 6))
+    pygame.draw.ellipse(surface, S.INK, (rect.right - 15, rect.bottom - 6, 12, 6))
+
+
+def draw_coin(surface, rect):
+    cx, cy = rect.center
+    r = rect.w // 2
+    for a in range(0, 360, 45):
+        rad = math.radians(a)
+        pygame.draw.line(surface, S.ORANGE, (cx, cy),
+                         (cx + r * math.cos(rad), cy + r * math.sin(rad)), 3)
+    pygame.draw.circle(surface, S.ORANGE, (cx, cy), max(2, r // 2))
+    pygame.draw.circle(surface, S.CREAM, (cx, cy), max(1, r // 4))
+
+
+def draw_goomba(surface, rect):
+    body = pygame.Rect(rect.left, rect.top, rect.w, rect.h)
+    pygame.draw.ellipse(surface, S.INK, body)
+    eye_y = rect.y + rect.h // 3
+    for ex in (rect.centerx - 6, rect.centerx + 6):
+        pygame.draw.circle(surface, S.CREAM, (ex, eye_y), 4)
+        pygame.draw.circle(surface, S.INK, (ex, eye_y), 2)
+    pygame.draw.ellipse(surface, S.SAGE, (rect.left, rect.bottom - 5, rect.w // 2 - 1, 5))
+    pygame.draw.ellipse(surface, S.SAGE, (rect.centerx + 1, rect.bottom - 5, rect.w // 2 - 1, 5))
+
+
+def draw_flag(surface, rect):
+    pole = pygame.Rect(rect.centerx - 3, rect.top, 6, rect.h)
+    pygame.draw.rect(surface, S.INK, pole)
+    pygame.draw.circle(surface, S.BLUE, (rect.centerx, rect.top), 6)
+    pts = [(rect.centerx + 3, rect.top + 6),
+           (rect.centerx + 30, rect.top + 14),
+           (rect.centerx + 3, rect.top + 22)]
+    pygame.draw.polygon(surface, S.ORANGE, pts)
