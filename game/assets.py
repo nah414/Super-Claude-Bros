@@ -11,6 +11,12 @@ _STARS = [(57, 60), (140, 38), (210, 90), (320, 50), (440, 110), (560, 44),
 
 
 def draw_background(surface, camera, area_type="overworld"):
+    if area_type == "ice":
+        surface.fill(S.ICE_SKY)
+        shift = int(camera.offset_x * 0.3)
+        for sx, sy in _STARS:                            # drifting snowflakes
+            pygame.draw.circle(surface, S.CREAM, ((sx - shift) % S.WIDTH, sy), 2)
+        return
     if area_type == "water":
         for i in range(0, S.HEIGHT, 8):                  # teal -> deep-blue depth gradient
             t = i / S.HEIGHT
@@ -72,6 +78,8 @@ def draw_block(surface, rect, kind, used=False, area_type="overworld"):
         ground, edge = S.SKY_GROUND, S.SKY_EDGE
     elif area_type == "water":
         ground, edge = S.SEABED, S.SEABED_EDGE
+    elif area_type == "ice":
+        ground, edge = S.ICE_GROUND, S.ICE_EDGE
     elif area_type == "underground":
         ground, edge = S.CAVE_GROUND, S.CAVE_EDGE
     else:
@@ -186,6 +194,20 @@ def draw_pipe(surface, rect, mouth):
         pygame.draw.rect(surface, S.PIPE, rect)
         pygame.draw.rect(surface, S.PIPE_DK, (rect.right - 8, rect.y, 8, rect.h))
         pygame.draw.line(surface, S.CREAM, (rect.x + 4, rect.y), (rect.x + 4, rect.bottom), 2)
+
+
+def draw_frostbite(surface, rect, direction=1):
+    pygame.draw.ellipse(surface, S.SNOW, rect)
+    pygame.draw.ellipse(surface, S.INK, rect, 2)
+    for i in range(3):                                   # ice spikes on top (don't stomp!)
+        sx = rect.left + 7 + i * (rect.w - 14) // 2
+        spike = [(sx - 4, rect.top + 5), (sx + 4, rect.top + 5), (sx, rect.top - 6)]
+        pygame.draw.polygon(surface, S.ICE_EDGE, spike)
+        pygame.draw.polygon(surface, S.BLUE, spike, 1)
+    for ex in (rect.centerx - 6, rect.centerx + 6):
+        pygame.draw.circle(surface, S.INK, (ex, rect.centery + 2), 2)
+    pygame.draw.ellipse(surface, S.BLUE, (rect.left + 2, rect.bottom - 5, rect.w // 2 - 3, 5))
+    pygame.draw.ellipse(surface, S.BLUE, (rect.centerx + 1, rect.bottom - 5, rect.w // 2 - 3, 5))
 
 
 def draw_cheep(surface, rect, direction=1):
