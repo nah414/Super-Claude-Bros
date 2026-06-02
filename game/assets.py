@@ -160,18 +160,26 @@ def _burst(surface, cx, cy, R, color, width, step=30):
         pygame.draw.line(surface, color, (cx, cy), (cx + R * math.cos(rad), cy + R * math.sin(rad)), width)
 
 
-def draw_player(surface, rect, facing=1, power="small"):
+def draw_player(surface, rect, facing=1, power="small", ducking=False):
     """The Claude Spark Hero: a bold sunburst-spark head (the Anthropic mark) over a
-    friendly orange body. Drawn relative to `rect`, so the big variant scales up."""
+    friendly orange body. Drawn relative to `rect`, so the big variant scales up.
+    When `ducking`, the hero tucks: the body fills the short box and the head sits
+    low on the shoulders, so a crouch reads clearly instead of a squashed sprite."""
     w, h = rect.w, rect.h
     ox = int(2 * facing)
-    body = pygame.Rect(rect.x + int(w * 0.12), rect.y + int(h * 0.44), int(w * 0.76), int(h * 0.44))
+    if ducking:
+        # crouch: body rides high and fills the short box down to the feet
+        body = pygame.Rect(rect.x + int(w * 0.12), rect.y + int(h * 0.30),
+                           int(w * 0.76), rect.bottom - int(h * 0.08) - (rect.y + int(h * 0.30)))
+    else:
+        body = pygame.Rect(rect.x + int(w * 0.12), rect.y + int(h * 0.44), int(w * 0.76), int(h * 0.44))
     # arms
     pygame.draw.rect(surface, S.ORANGE, (body.left - int(w*0.12), body.y + int(body.h*0.30), int(w*0.14), int(body.h*0.42)), border_radius=4)
     pygame.draw.rect(surface, S.ORANGE, (body.right - int(w*0.02), body.y + int(body.h*0.30), int(w*0.14), int(body.h*0.42)), border_radius=4)
-    # legs
-    pygame.draw.rect(surface, S.ORANGE, (body.centerx - int(w*0.20), body.bottom - 2, int(w*0.16), int(h*0.12)), border_radius=3)
-    pygame.draw.rect(surface, S.ORANGE, (body.centerx + int(w*0.05), body.bottom - 2, int(w*0.16), int(h*0.12)), border_radius=3)
+    if not ducking:
+        # legs (tucked away when crouched)
+        pygame.draw.rect(surface, S.ORANGE, (body.centerx - int(w*0.20), body.bottom - 2, int(w*0.16), int(h*0.12)), border_radius=3)
+        pygame.draw.rect(surface, S.ORANGE, (body.centerx + int(w*0.05), body.bottom - 2, int(w*0.16), int(h*0.12)), border_radius=3)
     # feet
     pygame.draw.ellipse(surface, S.INK, (body.left, rect.bottom - int(h*0.09), int(w*0.40), int(h*0.09)))
     pygame.draw.ellipse(surface, S.INK, (body.centerx, rect.bottom - int(h*0.09), int(w*0.40), int(h*0.09)))
@@ -188,8 +196,8 @@ def draw_player(surface, rect, facing=1, power="small"):
     smy = ey + int(h * 0.11)
     pygame.draw.lines(surface, S.INK, False,
                       [(body.centerx - sm + ox, smy), (body.centerx + ox, smy + 4), (body.centerx + sm + ox, smy)], 2)
-    # bold sunburst spark head (the Claude identity)
-    hx, hy = rect.centerx, rect.y + int(h * 0.17)
+    # bold sunburst spark head (the Claude identity) — sits low on the shoulders when ducking
+    hx, hy = rect.centerx, rect.y + int(h * (0.26 if ducking else 0.17))
     R = int(w * 0.60) if power in ("big", "fire") else int(w * 0.56)
     spark = S.FIRE if power == "fire" else S.ORANGE
     pygame.draw.line(surface, spark, (hx, hy + int(w*0.24)), (hx, body.y), 3)   # neck
