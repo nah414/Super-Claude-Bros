@@ -106,6 +106,28 @@ def test_damage_drops_carried_shell():
     assert g.player.carrying is None and not k.held and k.state == "shell"
 
 
+def test_stomp_proof_enemy_hurts_on_top():
+    from game.entities.frostbite import Frostbite
+    g = Game(); g.new_game(); g.state = "PLAYING"; g.player.grow()    # big
+    g.level.enemies.clear()
+    fr = Frostbite(int(g.player.x), int(g.player.y))
+    g.level.enemies.append(fr)
+    g.player.x = float(fr.rect.x)
+    g.player.y = float(fr.rect.top - g.player.h + 5); g.player.vy = 4.0   # "stomp" from above
+    g.handle_enemies()
+    assert fr.alive and g.player.power == "small"     # not stomped; damaged big->small
+
+
+def test_fireball_kills_stomp_proof_enemy():
+    from game.entities.frostbite import Frostbite
+    from game.entities.fireball import Fireball
+    g = Game(); g.new_game(); g.state = "PLAYING"; g.level.enemies.clear()
+    fr = Frostbite(300, 300); g.level.enemies.append(fr)
+    g.fireballs.append(Fireball(fr.rect.centerx, fr.rect.centery, 1))
+    g.handle_fireballs()
+    assert not fr.alive
+
+
 def test_new_game_starts_at_chosen_world():
     from game import levelset
     g = Game(); g.new_game(4)

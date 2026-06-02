@@ -395,7 +395,7 @@ class Game:
                         return True
                     self.sfx.play("hurt")
             else:
-                if from_top:
+                if from_top and not getattr(e, "stomp_proof", False):
                     e.alive = False
                     self.player.vy = S.STOMP_BOUNCE
                     pts = getattr(e, "score", S.STOMP_SCORE)
