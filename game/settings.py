@@ -181,6 +181,7 @@ FOG          = (180, 168, 200)
 MOON_PALE    = (216, 208, 230)
 BOO_SPEED = 1.3
 BOO_SCORE = 200
+BOO_CHASE_RANGE = 600         # only hunt when the player is within ~0.6 screen (else dormant)
 
 # --- Factory (World 6) ---
 FACTORY_BG     = (30, 32, 38)

@@ -16,13 +16,16 @@ class Boo(Entity):
         self.score = S.BOO_SCORE
 
     def chase(self, player):
+        dx = player.rect.centerx - self.rect.centerx
+        dy = player.rect.centery - self.rect.centery
+        dist = max(1.0, (dx * dx + dy * dy) ** 0.5)
+        if dist > S.BOO_CHASE_RANGE:                    # player far/off-screen -> stay dormant
+            self.frozen = True                          # (keeps a bonus-room Boo from roaming out)
+            return
         to_boo = 1 if self.rect.centerx >= player.rect.centerx else -1
         self.facing = -to_boo                          # look at the player
         self.frozen = (player.facing == to_boo)        # player looking toward it -> shy
         if not self.frozen:
-            dx = player.rect.centerx - self.rect.centerx
-            dy = player.rect.centery - self.rect.centery
-            dist = max(1.0, (dx * dx + dy * dy) ** 0.5)
             self.x += S.BOO_SPEED * dx / dist
             self.y += S.BOO_SPEED * dy / dist
 

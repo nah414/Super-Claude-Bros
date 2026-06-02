@@ -49,6 +49,28 @@ def test_pipe_levels_have_a_bonus_coin_room():
         assert len(room_coins) >= 20, f"{name}: bonus room has only {len(room_coins)} coins"
 
 
+def test_bonus_rooms_have_two_enemies():
+    """Each bonus stage (past the flag) holds exactly two themed enemies."""
+    for name in PIPE_LEVELS:
+        lv = Level(S.resource_path("levels/" + name))
+        room_enemies = [e for e in lv.enemies if e.rect.x >= lv.play_width]
+        assert len(room_enemies) == 2, f"{name}: {len(room_enemies)} room enemies (want 2)"
+
+
+def test_boo_dormant_when_player_far_active_when_near():
+    """The chase-range gate keeps a far/off-screen Boo from roaming (e.g. out of a room)."""
+    import types
+    from game.entities.boo import Boo
+    boo = Boo(0, 0)
+    home = (boo.x, boo.y)
+    far = types.SimpleNamespace(rect=pygame.Rect(S.BOO_CHASE_RANGE + 400, 0, 30, 44), facing=1)
+    boo.chase(far)
+    assert (boo.x, boo.y) == home and boo.frozen          # too far -> stays put
+    near = types.SimpleNamespace(rect=pygame.Rect(120, 0, 30, 44), facing=1)  # close, looking away
+    boo.chase(near)
+    assert (boo.x, boo.y) != home                          # in range, not watched -> hunts
+
+
 def test_each_world_has_at_least_two_bonus_stages():
     """Every world (4 levels) must contain >= 2 levels with a warp-pipe bonus stage."""
     for world in range(1, 9):
