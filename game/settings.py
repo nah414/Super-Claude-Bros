@@ -145,6 +145,15 @@ CHEEP_BOB_PERIOD = 110
 CHEEP_RANGE      = 150
 CHEEP_SCORE      = 200
 
+# --- Ice (World 4) ---
+ICE_SKY      = (150, 196, 224)
+ICE_GROUND   = (198, 222, 236)
+ICE_EDGE     = (236, 248, 255)
+SNOW         = (224, 240, 250)
+ICE_FRICTION = 0.05            # slippery: barely decelerates (vs FRICTION)
+FROST_SPEED  = 1.2
+FROST_SCORE  = 200
+
 
 def resource_path(rel):
     """Resolve a data file path for both source runs and PyInstaller bundles.
