@@ -96,6 +96,22 @@ KOOPA_SHELL         = (96, 156, 76)
 PIPE    = (84, 138, 74)
 PIPE_DK = (54, 92, 50)
 
+# --- Castle / Boss ---
+CASTLE_BG     = (26, 16, 18)
+CASTLE_GROUND = (54, 42, 46)
+CASTLE_EDGE   = (122, 74, 64)
+LAVA          = (226, 94, 38)
+LAVA_GLOW     = (250, 176, 80)
+BOSS_SIZE          = (58, 58)
+BOSS_HP            = 3
+BOSS_SPEED         = 1.1
+BOSS_FLASH         = 30        # frames of invuln after a fireball hit
+BOSS_SHOT_SIZE     = 18
+BOSS_SHOT_SPEED    = 4.5
+BOSS_SHOT_LIFE     = 150
+BOSS_SHOT_COOLDOWN = 90        # frames between boss shots
+BOSS_SCORE         = 5000
+
 
 def resource_path(rel):
     """Resolve a data file path for both source runs and PyInstaller bundles.

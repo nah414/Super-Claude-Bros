@@ -11,6 +11,12 @@ _STARS = [(57, 60), (140, 38), (210, 90), (320, 50), (440, 110), (560, 44),
 
 
 def draw_background(surface, camera, area_type="overworld"):
+    if area_type == "castle":
+        surface.fill(S.CASTLE_BG)
+        glow = pygame.Surface((S.WIDTH, 70), pygame.SRCALPHA)
+        glow.fill((200, 70, 30, 45))                 # lava glow rising from below
+        surface.blit(glow, (0, S.HEIGHT - 70))
+        return
     if area_type == "underground":
         surface.fill(S.CAVE_BG)
         pygame.draw.rect(surface, S.CAVE_CEIL, (0, 0, S.WIDTH, 30))   # dim cave ceiling band
@@ -35,8 +41,12 @@ def _question_font():
 
 
 def draw_block(surface, rect, kind, used=False, area_type="overworld"):
-    ground = S.CAVE_GROUND if area_type == "underground" else S.GROUND_DARK
-    edge = S.CAVE_EDGE if area_type == "underground" else S.GROUND_EDGE
+    if area_type == "castle":
+        ground, edge = S.CASTLE_GROUND, S.CASTLE_EDGE
+    elif area_type == "underground":
+        ground, edge = S.CAVE_GROUND, S.CAVE_EDGE
+    else:
+        ground, edge = S.GROUND_DARK, S.GROUND_EDGE
     if kind == "X":                       # solid ground
         pygame.draw.rect(surface, ground, rect)
         pygame.draw.rect(surface, edge, (rect.x, rect.y, rect.w, 4))
@@ -165,6 +175,45 @@ def draw_koopa(surface, rect, state="walk", direction=1):
     if state == "slide":
         pygame.draw.line(surface, S.INK, (shell.left + 3, shell.centery),
                          (shell.right - 3, shell.centery), 1)    # spin streak
+
+
+def draw_lava(surface, rect):
+    pygame.draw.rect(surface, S.LAVA, rect)
+    pygame.draw.rect(surface, S.LAVA_GLOW, (rect.x, rect.y, rect.w, 5))    # bright molten surface
+    pygame.draw.circle(surface, S.LAVA_GLOW, (rect.x + 12, rect.y + 16), 3)
+    pygame.draw.circle(surface, S.LAVA_GLOW, (rect.right - 13, rect.y + 24), 2)
+
+
+def draw_boss_shot(surface, rect):
+    c = rect.center
+    pygame.draw.circle(surface, S.INK, c, rect.w // 2)
+    pygame.draw.circle(surface, S.FIRE, c, rect.w // 2 - 2)
+    pygame.draw.circle(surface, S.LAVA_GLOW, c, max(2, rect.w // 2 - 6))
+
+
+def draw_boss(surface, rect, direction=1, flashing=False):
+    shell = pygame.Rect(rect.x, rect.y + 12, rect.w, rect.h - 12)
+    dome = S.CREAM if flashing else S.KOOPA_SHELL
+    # angry head poking forward
+    hx = rect.right - 12 if direction > 0 else rect.left + 12
+    pygame.draw.circle(surface, S.SAGE, (hx, rect.y + 18), 12)
+    pygame.draw.circle(surface, S.INK, (hx, rect.y + 18), 12, 2)
+    ex = hx + 4 * direction
+    pygame.draw.circle(surface, S.CREAM, (ex, rect.y + 15), 4)
+    pygame.draw.circle(surface, S.INK, (ex, rect.y + 15), 2)
+    pygame.draw.line(surface, S.INK, (hx - 7, rect.y + 8), (hx + 7, rect.y + 12), 3)   # brow
+    # armored shell dome
+    pygame.draw.ellipse(surface, dome, shell)
+    pygame.draw.ellipse(surface, S.INK, shell, 3)
+    # spikes
+    for i in range(4):
+        sx = shell.left + 10 + i * (shell.w - 20) // 3
+        spike = [(sx - 6, shell.top + 7), (sx + 6, shell.top + 7), (sx, shell.top - 8)]
+        pygame.draw.polygon(surface, S.MIDGRAY, spike)
+        pygame.draw.polygon(surface, S.INK, spike, 1)
+    # feet
+    pygame.draw.ellipse(surface, S.SAGE, (rect.left + 5, rect.bottom - 8, rect.w // 2 - 7, 8))
+    pygame.draw.ellipse(surface, S.SAGE, (rect.centerx + 4, rect.bottom - 8, rect.w // 2 - 7, 8))
 
 
 def draw_flag(surface, rect):

@@ -9,6 +9,7 @@ from game.entities.mushroom import Mushroom
 from game.entities.fireflower import FireFlower
 from game.entities.fireball import Fireball
 from game.entities.koopa import Koopa
+from game.entities.boss_shot import BossShot
 from game.hud import HUD
 from game.sound import SoundFX
 from game.music import MusicManager
@@ -49,7 +50,9 @@ class Game:
         self.mushrooms = []
         self.flowers = []
         self.fireballs = []
+        self.boss_shots = []
         self.effects = []
+        self.cleared_boss = False
         if self.carry_power == "big":
             self.player.grow()
         elif self.carry_power == "fire":
@@ -60,12 +63,19 @@ class Game:
         self.state = "LEVEL_INTRO"
 
     def respawn(self):
+        # death restarts the level fresh (boxes/enemies/boss reset) — classic Mario, no softlock
+        self.level = Level(S.resource_path("levels/" + levelset.level_file(self.index)))
         self.player = Player(*self.level.player_spawn)
         self.camera = Camera(self.level.width_px)
         self.mushrooms = []
         self.flowers = []
         self.fireballs = []
+        self.boss_shots = []
         self.effects = []
+        if self.carry_power == "big":
+            self.player.grow()
+        elif self.carry_power == "fire":
+            self.player.become_fire()
         self.music_track = 1
         self.music.play_track(1)
         self.state = "PLAYING"
@@ -161,6 +171,15 @@ class Game:
         self.player.update(self.level)
         for e in self.level.enemies:
             e.update(self.level)
+        if self.level.boss and self.level.boss.alive:
+            self.level.boss.update(self.level)
+            if self.level.boss.ready_to_shoot():
+                d = 1 if self.player.rect.centerx >= self.level.boss.rect.centerx else -1
+                self.boss_shots.append(BossShot(self.level.boss.rect.centerx, self.level.boss.rect.centery, d))
+                self.sfx.play("fire")
+        for s in self.boss_shots:
+            s.update(self.level)
+        self.boss_shots = [s for s in self.boss_shots if s.alive]
         for m in self.mushrooms:
             m.update(self.level)
         for fl in self.flowers:
@@ -185,11 +204,16 @@ class Game:
         self.handle_shells()
         if self.handle_enemies():
             return
+        if self.handle_boss():
+            return
         if self.level.flag and self.player.rect.colliderect(self.level.flag.rect):
             self.sfx.play("win")
             self.state = "LEVEL_COMPLETE"
             return
         if self.player.y > S.PIT_DEATH_Y:
+            self.lose_life()
+            return
+        if any(self.player.rect.colliderect(l) for l in self.level.lava):
             self.lose_life()
 
     def handle_coins(self):
@@ -247,6 +271,13 @@ class Game:
                     f.alive = False
                     self.score += f.score
                     self.popup(e.rect.centerx, e.rect.top, f"+{f.score}")
+                    self.sfx.play("stomp")
+            b = self.level.boss
+            if f.alive and b and b.alive and f.rect.colliderect(b.rect):
+                f.alive = False
+                if b.hit():
+                    self.boss_defeated()
+                else:
                     self.sfx.play("stomp")
         self.fireballs = [f for f in self.fireballs if f.alive]
 
@@ -363,6 +394,31 @@ class Game:
                     self.popup(e.rect.centerx, e.rect.top, f"+{pts}")
                     self.sfx.play("stomp")
 
+    def boss_defeated(self):
+        b = self.level.boss
+        self.score += b.score
+        self.popup(b.rect.centerx, b.rect.top, f"+{b.score}")
+        self.sfx.play("win")
+        self.cleared_boss = True
+        self.state = "LEVEL_COMPLETE"
+
+    def handle_boss(self):
+        """Boss body and its shots hurt the player (the boss is stomp-proof)."""
+        b = self.level.boss
+        if b and b.alive and self.player.rect.colliderect(b.rect):
+            if self.player.take_damage(self.now()):
+                self.lose_life()
+                return True
+            self.sfx.play("hurt")
+        for s in self.boss_shots:
+            if s.alive and self.player.rect.colliderect(s.rect):
+                s.alive = False
+                if self.player.take_damage(self.now()):
+                    self.lose_life()
+                    return True
+                self.sfx.play("hurt")
+        return False
+
     # --- draw ---
     def draw(self):
         if self.state == "TITLE":
@@ -377,6 +433,8 @@ class Game:
                 fl.draw(self.screen, self.camera)
             for f in self.fireballs:
                 f.draw(self.screen, self.camera)
+            for s in self.boss_shots:
+                s.draw(self.screen, self.camera)
             self.player.draw(self.screen, self.camera)
             if self.player.carrying is not None:
                 self.player.carrying.draw(self.screen, self.camera)   # held shell on top
@@ -386,7 +444,10 @@ class Game:
             if self.state == "LEVEL_INTRO":
                 self.banner(f"WORLD {levelset.world_label(self.index)}", "")
             elif self.state == "LEVEL_COMPLETE":
-                self.banner("LEVEL COMPLETE!", "Press ENTER")
+                if self.cleared_boss:
+                    self.banner(f"WORLD {levelset.world_label(self.index)[0]} CLEARED!", "Press ENTER")
+                else:
+                    self.banner("LEVEL COMPLETE!", "Press ENTER")
             elif self.state == "GAME_OVER":
                 self.banner("GAME OVER", "Press ENTER for title")
             elif self.state == "GAME_COMPLETE":

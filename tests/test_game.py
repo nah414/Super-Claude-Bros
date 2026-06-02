@@ -105,6 +105,43 @@ def test_damage_drops_carried_shell():
     assert g.player.carrying is None and not k.held and k.state == "shell"
 
 
+def test_fireball_defeats_boss_completes_level():
+    from game.entities.boss import Boss
+    from game.entities.fireball import Fireball
+    g = Game(); g.new_game(); g.state = "PLAYING"
+    b = Boss(int(g.player.x) + 60, int(g.player.y)); b.hp = 1
+    g.level.boss = b
+    g.fireballs.append(Fireball(b.rect.centerx, b.rect.centery, 1))
+    g.handle_fireballs()
+    assert not b.alive and g.state == "LEVEL_COMPLETE" and g.cleared_boss
+
+
+def test_boss_is_stomp_proof():
+    from game.entities.boss import Boss
+    g = Game(); g.new_game(); g.state = "PLAYING"; g.player.grow()      # big
+    b = Boss(int(g.player.x), int(g.player.y)); g.level.boss = b
+    g.player.x = float(b.rect.x)
+    g.player.y = float(b.rect.top - g.player.h + 6); g.player.vy = 4.0   # "stomping" from above
+    g.handle_boss()
+    assert g.player.power == "small"        # damaged (no stomp), big -> small
+
+
+def test_lava_costs_a_life():
+    g = Game(); g.new_game(); g.state = "PLAYING"
+    g.level.lava = [g.player.rect.inflate(40, 40)]
+    lives = g.lives
+    g.update()
+    assert g.lives == lives - 1
+
+
+def test_death_reloads_level():
+    g = Game(); g.new_game(); g.state = "PLAYING"
+    box = next(b for b in g.level.blocks if b.kind in ("?", "M"))
+    box.used = True
+    g.lose_life()
+    assert all(not b.used for b in g.level.blocks)   # fresh reload restores boxes
+
+
 def test_down_on_trigger_teleports_hero():
     g = Game(); g.new_game(); g.state = "PLAYING"
     trig = pygame.Rect(5 * 40, 6 * 40, 40, 40)
