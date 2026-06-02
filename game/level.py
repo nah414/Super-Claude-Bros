@@ -49,6 +49,10 @@ class Level:
                 x, y = i * S.TILE, j * S.TILE
                 if ch in SOLID_KINDS:
                     self.blocks.append(Block(x, y, ch))
+                    if ch == "N":                    # cannon: fire only from the top of a stack
+                        above = rows[j - 1][i] if j > 0 and i < len(rows[j - 1]) else "."
+                        if above != "N":
+                            self.cannons.append(Cannon(x, y))
                 elif ch == "C":
                     self.coins.append(Coin(x, y))
                 elif ch == "G":
@@ -59,11 +63,6 @@ class Level:
                     self.enemies.append(Koopa(x, y))
                 elif ch == "L":
                     self.lava.append(pygame.Rect(x, y, S.TILE, S.TILE))
-                elif ch == "N":
-                    self.blocks.append(Block(x, y, "N"))
-                    above = rows[j - 1][i] if j > 0 and i < len(rows[j - 1]) else "."
-                    if above != "N":                 # only the top of a stack fires
-                        self.cannons.append(Cannon(x, y))
                 elif ch == "Z":
                     self.boss = Boss(x, y)
                 elif ch == "F":
