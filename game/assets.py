@@ -11,6 +11,18 @@ _STARS = [(57, 60), (140, 38), (210, 90), (320, 50), (440, 110), (560, 44),
 
 
 def draw_background(surface, camera, area_type="overworld"):
+    if area_type == "keep":
+        surface.fill(S.KEEP_BG)
+        haze = pygame.Surface((S.WIDTH, S.HEIGHT), pygame.SRCALPHA)
+        haze.fill((120, 20, 30, 22))                     # ominous dark-red haze
+        surface.blit(haze, (0, 0))
+        return
+    if area_type == "caldera":
+        surface.fill(S.CALDERA_BG)
+        glow = pygame.Surface((S.WIDTH, 140), pygame.SRCALPHA)
+        glow.fill((230, 80, 26, 55))                     # molten under-glow
+        surface.blit(glow, (0, S.HEIGHT - 140))
+        return
     if area_type == "factory":
         surface.fill(S.FACTORY_BG)
         shift = int(camera.offset_x * 0.25)
@@ -103,6 +115,10 @@ def draw_block(surface, rect, kind, used=False, area_type="overworld"):
         ground, edge = S.HAUNT_GROUND, S.HAUNT_EDGE
     elif area_type == "factory":
         ground, edge = S.FACTORY_GROUND, S.FACTORY_EDGE
+    elif area_type == "caldera":
+        ground, edge = S.CALDERA_GROUND, S.CALDERA_EDGE
+    elif area_type == "keep":
+        ground, edge = S.KEEP_GROUND, S.KEEP_EDGE
     elif area_type == "underground":
         ground, edge = S.CAVE_GROUND, S.CAVE_EDGE
     else:
@@ -341,6 +357,22 @@ def draw_lava(surface, rect):
     pygame.draw.rect(surface, S.LAVA_GLOW, (rect.x, rect.y, rect.w, 5))    # bright molten surface
     pygame.draw.circle(surface, S.LAVA_GLOW, (rect.x + 12, rect.y + 16), 3)
     pygame.draw.circle(surface, S.LAVA_GLOW, (rect.right - 13, rect.y + 24), 2)
+
+
+def draw_lava_sea(surface, top_y):
+    top_y = int(top_y)
+    if top_y >= S.HEIGHT:
+        return
+    pygame.draw.rect(surface, S.LAVA, (0, top_y, S.WIDTH, S.HEIGHT - top_y))
+    pygame.draw.rect(surface, S.LAVA_GLOW, (0, top_y, S.WIDTH, 5))        # bright molten surface
+    for bx in range(30, S.WIDTH, 80):
+        pygame.draw.circle(surface, S.LAVA_GLOW, (bx, top_y + 9), 3)
+
+
+def draw_lava_bubble(surface, rect):
+    pygame.draw.circle(surface, S.LAVA, rect.center, rect.w // 2)
+    pygame.draw.circle(surface, S.LAVA_GLOW, rect.center, max(2, rect.w // 2 - 3))
+    pygame.draw.circle(surface, S.CREAM, (rect.centerx - 2, rect.centery - 2), 2)
 
 
 def draw_boss_shot(surface, rect):
