@@ -13,7 +13,9 @@ from game.levelset import LEVELS
 T = S.TILE
 
 PIPE_LEVELS = ("level_1.txt", "level_5.txt", "level_9.txt", "level_13.txt",
-               "level_17.txt", "level_21.txt", "level_25.txt", "level_29.txt")
+               "level_17.txt", "level_21.txt", "level_25.txt", "level_29.txt",
+               "level_2.txt", "level_6.txt", "level_10.txt", "level_14.txt",
+               "level_18.txt", "level_22.txt", "level_26.txt", "level_31.txt")
 BOSS_LEVELS = (4, 8, 12, 16, 20, 24, 28, 32)
 
 
@@ -45,6 +47,17 @@ def test_pipe_levels_have_a_bonus_coin_room():
         # the bonus room sits past the goal flag (play_width)
         room_coins = [c for c in lv.coins if c.rect.x >= lv.play_width]
         assert len(room_coins) >= 20, f"{name}: bonus room has only {len(room_coins)} coins"
+
+
+def test_each_world_has_at_least_two_bonus_stages():
+    """Every world (4 levels) must contain >= 2 levels with a warp-pipe bonus stage."""
+    for world in range(1, 9):
+        with_warps = 0
+        for sub in range(1, 5):
+            n = (world - 1) * 4 + sub
+            if Level(S.resource_path(f"levels/level_{n}.txt")).warps:
+                with_warps += 1
+        assert with_warps >= 2, f"World {world}: only {with_warps} bonus stage(s) (need >= 2)"
 
 
 def test_boss_levels_allow_fire_and_recovery():
