@@ -1,4 +1,4 @@
-# type: castle
+# type: castle_sea
 ........................................................................................
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ......................................................................................XX
@@ -10,7 +10,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ......................................................................................XX
 ......................................................................................XX
 ........................M...M.........................................................XX
-......................................................................................XX
-..P.....................................................................Z.............XX
+................................................................................N.....XX
+..P.....................................................................Z.......N.....XX
 XXXXXXXXXXXXXXXXXLLXXXXXXXXXXXXXXXXXXXXXLLXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXLLXXXXXXXXXXXXXXXXXXXXXLLXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

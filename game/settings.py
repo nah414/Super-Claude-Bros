@@ -111,6 +111,19 @@ BOSS_SHOT_SPEED    = 4.5
 BOSS_SHOT_LIFE     = 150
 BOSS_SHOT_COOLDOWN = 90        # frames between boss shots
 BOSS_SCORE         = 5000
+# per-world boss flavor (index = world-1); scales difficulty + identity
+BOSS_COLORS = [(96, 156, 76), (96, 140, 200), (76, 170, 160), (170, 205, 228),
+               (150, 110, 180), (210, 120, 80), (120, 130, 150), (210, 170, 80)]
+BOSS_TITLES = ["IRON KOOPA", "GALE KOOPA", "TIDE KOOPA", "FROST KOOPA",
+               "PHANTOM KOOPA", "EMBER KOOPA", "STORM KOOPA", "KING KOOPA"]
+# themed castle skins (visuals only — physics stay "castle": dry, lava, normal movement)
+CASTLE_SKINS = {
+    "castle":       {"bg": (26, 16, 18), "ground": (54, 42, 46), "edge": (122, 74, 64), "glow": (200, 70, 30)},
+    "castle_sky":   {"bg": (44, 32, 60), "ground": (70, 60, 88), "edge": (150, 138, 178), "glow": (180, 120, 90)},
+    "castle_sea":   {"bg": (12, 30, 44), "ground": (40, 64, 74), "edge": (96, 144, 152), "glow": (60, 150, 160)},
+    "castle_ice":   {"bg": (34, 50, 70), "ground": (86, 110, 134), "edge": (190, 214, 234), "glow": (120, 170, 210)},
+    "castle_haunt": {"bg": (30, 20, 42), "ground": (56, 42, 64), "edge": (118, 90, 128), "glow": (150, 90, 150)},
+}
 
 # --- Sky (World 2) ---
 SKY_TOP    = (58, 44, 92)      # dusk gradient top

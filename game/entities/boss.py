@@ -12,8 +12,21 @@ class Boss(Entity):
         self.direction = -1
         self.hp = S.BOSS_HP
         self.flash = 0
-        self.shot_timer = S.BOSS_SHOT_COOLDOWN
+        self.speed = S.BOSS_SPEED
+        self.shot_cd = S.BOSS_SHOT_COOLDOWN
+        self.shot_timer = self.shot_cd
+        self.color = S.BOSS_COLORS[0]
+        self.title = S.BOSS_TITLES[0]
         self.score = S.BOSS_SCORE
+
+    def set_tier(self, world):
+        """Scale stats + identity to the world (1-based)."""
+        self.hp = S.BOSS_HP + (world - 1) // 2
+        self.speed = S.BOSS_SPEED + (world - 1) * 0.12
+        self.shot_cd = max(45, S.BOSS_SHOT_COOLDOWN - (world - 1) * 9)
+        self.shot_timer = self.shot_cd
+        self.color = S.BOSS_COLORS[(world - 1) % len(S.BOSS_COLORS)]
+        self.title = S.BOSS_TITLES[(world - 1) % len(S.BOSS_TITLES)]
 
     def hit(self):
         """Take one fireball. Returns True if this blow defeats it."""
@@ -31,7 +44,7 @@ class Boss(Entity):
             self.flash -= 1
         if self.shot_timer > 0:
             self.shot_timer -= 1
-        self.vx = S.BOSS_SPEED * self.direction
+        self.vx = self.speed * self.direction
         self.vy = min(self.vy + S.GRAVITY, S.MAX_FALL)
         c = move_and_collide(self, level.solids)
         if c["left"] or c["right"]:
@@ -43,9 +56,9 @@ class Boss(Entity):
 
     def ready_to_shoot(self):
         if self.shot_timer <= 0:
-            self.shot_timer = S.BOSS_SHOT_COOLDOWN
+            self.shot_timer = self.shot_cd
             return True
         return False
 
     def draw(self, surface, camera):
-        assets.draw_boss(surface, camera.apply(self.rect), self.direction, self.flash > 0)
+        assets.draw_boss(surface, camera.apply(self.rect), self.direction, self.flash > 0, self.color)
