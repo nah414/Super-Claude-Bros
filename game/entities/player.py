@@ -75,6 +75,7 @@ class Player(Entity):
 
     # --- per-frame ---
     def update(self, level):
+        self._ice = getattr(level, "area_type", "") == "ice"
         self._horizontal(pygame.key.get_pressed())
         if getattr(level, "area_type", "") == "water":
             self.vy = min(self.vy + S.SWIM_GRAVITY, S.SWIM_MAX_SINK)
@@ -99,10 +100,11 @@ class Player(Entity):
             self.vx -= S.SKID_DECEL if self.vx > 0 else S.MOVE_ACCEL
             self.vx = max(self.vx, -top)
         else:
+            fr = S.ICE_FRICTION if getattr(self, "_ice", False) else S.FRICTION
             if self.vx > 0:
-                self.vx = max(0.0, self.vx - S.FRICTION)
+                self.vx = max(0.0, self.vx - fr)
             else:
-                self.vx = min(0.0, self.vx + S.FRICTION)
+                self.vx = min(0.0, self.vx + fr)
 
     def draw(self, surface, camera):
         # flicker while invulnerable
