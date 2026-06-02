@@ -147,9 +147,13 @@ class Game:
                     if idx < levelset.level_count():
                         self.new_game(idx)
                 elif event.key in JUMP_KEYS and self.state == "PLAYING":
-                    before = self.player.air_jumped
-                    self.player.press_jump(self.now())
-                    self.sfx.play("double" if (self.player.air_jumped and not before) else "jump")
+                    if self.level.area_type == "water":
+                        self.player.swim_stroke()
+                        self.sfx.play("jump")
+                    else:
+                        before = self.player.air_jumped
+                        self.player.press_jump(self.now())
+                        self.sfx.play("double" if (self.player.air_jumped and not before) else "jump")
                 elif event.key == pygame.K_f and self.state == "PLAYING":
                     if self.player.can_shoot(self.now()) and len(self.fireballs) < S.MAX_FIREBALLS:
                         self.fireballs.append(Fireball(self.player.rect.centerx, self.player.rect.centery, self.player.facing))
@@ -160,7 +164,7 @@ class Game:
                 elif event.key in (pygame.K_DOWN, pygame.K_s) and self.state == "PLAYING":
                     self.try_warp()
             elif event.type == pygame.KEYUP:
-                if event.key in JUMP_KEYS and self.state == "PLAYING":
+                if event.key in JUMP_KEYS and self.state == "PLAYING" and self.level.area_type != "water":
                     self.player.release_jump()
 
     def advance(self):

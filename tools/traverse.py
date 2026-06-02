@@ -38,21 +38,29 @@ def run_level(idx, max_frames=6000):
     last_x, stuck, jump_hold = p.x, 0, 0
     deaths = 0
     for fr in range(max_frames):
-        feet_y = p.rect.bottom + 4
-        gap_near = (not solid_at(g.level, p.rect.right + 8, feet_y)
-                    and not solid_at(g.level, p.rect.right + 44, feet_y))
-        block_ahead = solid_at(g.level, p.rect.right + 3, p.rect.centery)
-        enemy_ahead = any(e.alive and e.rect.left < p.rect.right + 50
-                          and e.rect.right > p.rect.right
-                          and abs(e.rect.centery - p.rect.centery) < 50
-                          for e in g.level.enemies)
-        if (gap_near or block_ahead or enemy_ahead) and p.on_ground:
-            p.press_jump(g.now())
-            jump_hold = 6
-        elif jump_hold == 3 and gap_near and not p.on_ground:
-            p.press_jump(g.now())           # double-jump to extend over a wide gap
-        if jump_hold > 0:
-            jump_hold -= 1
+        p = g.player                            # refresh: respawn() rebuilds the player
+        if g.level.area_type == "water":
+            target_y = 8 * 40                       # hold a mid-channel depth
+            ahead = (solid_at(g.level, p.rect.right + 6, p.rect.centery)
+                     or solid_at(g.level, p.rect.right + 6, p.rect.centery - 18))
+            if p.rect.centery > target_y or ahead:
+                p.swim_stroke()                     # stroke up to hold depth / clear coral
+        else:
+            feet_y = p.rect.bottom + 4
+            gap_near = (not solid_at(g.level, p.rect.right + 8, feet_y)
+                        and not solid_at(g.level, p.rect.right + 44, feet_y))
+            block_ahead = solid_at(g.level, p.rect.right + 3, p.rect.centery)
+            enemy_ahead = any(e.alive and e.rect.left < p.rect.right + 50
+                              and e.rect.right > p.rect.right
+                              and abs(e.rect.centery - p.rect.centery) < 50
+                              for e in g.level.enemies)
+            if (gap_near or block_ahead or enemy_ahead) and p.on_ground:
+                p.press_jump(g.now())
+                jump_hold = 6
+            elif jump_hold == 3 and gap_near and not p.on_ground:
+                p.press_jump(g.now())           # double-jump to extend over a wide gap
+            if jump_hold > 0:
+                jump_hold -= 1
         prev_lives = g.lives
         g.update()
         if g.state == "LEVEL_COMPLETE":
@@ -61,13 +69,15 @@ def run_level(idx, max_frames=6000):
             return False, fr, p.x, g.level.width_px, deaths
         if g.lives < prev_lives:
             deaths += 1
-        if p.x - last_x < 0.5:
+            last_x, stuck = g.player.x, 0        # player rebuilt at spawn; reset tracking
+            continue
+        if g.player.x - last_x < 0.5:
             stuck += 1
         else:
-            stuck, last_x = 0, p.x
+            stuck, last_x = 0, g.player.x
         if stuck > 240:
-            return False, fr, p.x, g.level.width_px, deaths
-    return False, max_frames, p.x, g.level.width_px, deaths
+            return False, fr, g.player.x, g.level.width_px, deaths
+    return False, max_frames, g.player.x, g.level.width_px, deaths
 
 
 if __name__ == "__main__":
