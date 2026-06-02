@@ -7,6 +7,7 @@ from game.entities.goomba import Goomba
 from game.entities.flyer import Flyer
 from game.entities.koopa import Koopa
 from game.entities.boss import Boss
+from game.entities.cannon import Cannon
 from game.entities.flag import Flag
 
 
@@ -19,6 +20,7 @@ class Level:
         self.player_spawn = (0, 0)
         self.warps = []
         self.lava = []
+        self.cannons = []
         self.boss = None
         self._load(path)
         self.width_px = self.cols * S.TILE
@@ -57,6 +59,11 @@ class Level:
                     self.enemies.append(Koopa(x, y))
                 elif ch == "L":
                     self.lava.append(pygame.Rect(x, y, S.TILE, S.TILE))
+                elif ch == "N":
+                    self.blocks.append(Block(x, y, "N"))
+                    above = rows[j - 1][i] if j > 0 and i < len(rows[j - 1]) else "."
+                    if above != "N":                 # only the top of a stack fires
+                        self.cannons.append(Cannon(x, y))
                 elif ch == "Z":
                     self.boss = Boss(x, y)
                 elif ch == "F":

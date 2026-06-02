@@ -2,6 +2,7 @@ import os
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 import pygame
+from game import settings as S
 from game.game import Game
 
 
@@ -103,6 +104,52 @@ def test_damage_drops_carried_shell():
     k.held = True; g.player.carrying = k
     g.drop_shell()
     assert g.player.carrying is None and not k.held and k.state == "shell"
+
+
+def test_new_game_starts_at_chosen_world():
+    from game import levelset
+    g = Game(); g.new_game(4)
+    assert g.index == 4 and levelset.world_label(4) == "2-1"
+
+
+def test_bullet_stomped_from_top():
+    from game.entities.bullet import BulletBill
+    g = Game(); g.new_game(); g.state = "PLAYING"
+    bl = BulletBill(int(g.player.x) + 200, int(g.player.y), -1)
+    g.bullets = [bl]
+    g.player.x = float(bl.rect.x)
+    g.player.y = float(bl.rect.top - g.player.h + 5); g.player.vy = 4.0
+    g.handle_bullets()
+    assert not bl.alive and g.player.vy == S.STOMP_BOUNCE
+
+
+def test_bullet_hurts_from_side():
+    from game.entities.bullet import BulletBill
+    g = Game(); g.new_game(); g.state = "PLAYING"; g.player.grow()    # big -> survives one hit
+    bl = BulletBill(g.player.rect.centerx, g.player.rect.centery, 1)
+    g.bullets = [bl]; g.player.vy = 0.0
+    g.handle_bullets()
+    assert g.player.power == "small"
+
+
+def test_fireball_pops_bullet():
+    from game.entities.bullet import BulletBill
+    from game.entities.fireball import Fireball
+    g = Game(); g.new_game(); g.state = "PLAYING"
+    bl = BulletBill(300, 300, 1); g.bullets = [bl]
+    g.fireballs.append(Fireball(bl.rect.centerx, bl.rect.centery, 1))
+    g.handle_fireballs()
+    assert not bl.alive
+
+
+def test_cannon_in_range_spawns_a_bullet():
+    from game.entities.cannon import Cannon
+    g = Game(); g.new_game(); g.state = "PLAYING"
+    c = Cannon(int(g.player.x) + 200, 300); c.timer = 0
+    g.level.cannons = [c]
+    g.player.x = float(c.rect.centerx - (S.BULLET_MIN_DIST + 40))
+    g.update()
+    assert len(g.bullets) >= 1
 
 
 def test_fireball_defeats_boss_completes_level():
