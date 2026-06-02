@@ -1,49 +1,139 @@
-# Super Claude Bros
+# Super Claude Bros 🧡
 
-A side-scrolling platformer starring the Claude **Spark Hero**, built with Python + Pygame.
-Multiple levels across overworld + underground worlds, power-ups, enemies, and looping music.
+An original, side-scrolling platformer starring the Claude **Spark Hero** — built from scratch
+in **Python + Pygame**. Eight themed worlds, thirty-two levels, a new movement twist in every
+world, and a tiered Koopa boss guarding each castle.
 
-## Run from source
+> An IP-clean homage: all art, levels, and music are original and procedurally drawn/synthesized.
+> No Nintendo (or anyone else's) assets are used.
 
-    python -m pip install -r requirements.txt
-    python main.py
+---
 
-## Controls
+## 🎮 Play it
 
-- **Move:** Arrow keys or A/D
-- **Jump:** Space / Up / W (hold for higher; tap twice fast for a double-jump)
-- **Run:** hold Shift
-- **Throw fireball** (when fire-powered): F
-- **Start / continue** (title, level-complete, game-over): Enter
-- **Quit:** Esc
+**Just want to play?** Grab the ready-to-run Windows app from the
+[**Releases**](https://github.com/nah414/Super-Claude-Bros/releases) page —
+download `SuperClaudeBros.exe`, double-click, and go. No install, no Python needed.
 
-## Build a standalone Windows app
+> Windows may show a blue "Windows protected your PC" SmartScreen notice because the app isn't
+> code-signed. Click **More info → Run anyway**. (It's just an unsigned indie build.)
 
-Bundle everything (code + levels + music) into a single double-clickable `.exe`:
+Prefer to run from source? See [Run from source](#-run-from-source) below.
 
-    python -m pip install pyinstaller pillow
-    python tools/make_icon.py         # (re)generate the Spark Hero icon
-    python tools/make_music.py        # (re)generate the 5 looping music tracks
-    python -m PyInstaller --noconfirm --onefile --windowed --name SuperClaudeBros --icon tools/claude.ico --add-data "levels;levels" --add-data "music;music" main.py
+---
 
-The app is produced at `dist/SuperClaudeBros.exe` — copy it anywhere and run it.
+## 🗺️ The eight worlds
+
+Every world has its own look, its own signature mechanic, a themed castle, and a boss in the
+Koopa line — each tougher than the last, ending with **King Koopa** himself.
+
+| World | Theme | New twist | Boss |
+|:-----:|-------|-----------|------|
+| 1 | Overworld & caves | The basics: run, variable jump, **double-jump** | Iron Koopa |
+| 2 | Dusk sky | Cannons & **Bullet Bills** | Gale Koopa |
+| 3 | Underwater | **Swimming** physics | Tide Koopa |
+| 4 | Ice fields | **Slippery** ground | Frost Koopa |
+| 5 | Haunted manor | **Boo** ghosts that freeze when you look at them | Phantom Koopa |
+| 6 | Factory | **Conveyor belts** | Ember Koopa |
+| 7 | Volcano caldera | **Rising lava** — outrun it | Storm Koopa |
+| 8 | Koopa Keep | A gauntlet of every hazard | **King Koopa** |
+
+Clear World 8-4 and you'll earn the victory/credits screen.
+
+## ✨ Features
+
+- **Power tiers** — Mushroom makes you big; **Fire Flower** lets you throw fireballs (small → big → fire).
+- **Shells** — stomp a Koopa, then kick, **carry**, and throw its shell to chain-clear enemies.
+- **Warp pipes** & hidden coin vaults.
+- **Ducking** — crouch to tuck under hazards (a big hero ducks to about one tile).
+- Original **procedural music** (a different looping track per area) and synthesized sound effects.
+- A **title-screen world select** so you can jump straight to any world.
+
+## 🕹️ Controls
+
+| Action | Keys |
+|--------|------|
+| Move | **← →** or **A / D** |
+| Run | hold **Shift** |
+| Jump | **Space / ↑ / W** — hold for height, tap twice fast to **double-jump** |
+| Duck | hold **↓** or **S** |
+| Enter a warp pipe | **↓** / **S** while standing on one |
+| Throw fireball *(fire power)* | **F** |
+| Grab / throw a shell | **E** |
+| Pick a world *(title screen)* | **1 – 8** |
+| Start / continue | **Enter** |
+| Quit | **Esc** |
+
+---
+
+## 💻 Run from source
+
+Requires Python 3.11+.
+
+```bash
+python -m pip install -r requirements.txt
+python main.py
+```
+
+## 🛠️ Build the standalone .exe
+
+Bundle the code, levels, and music into one double-clickable file:
+
+```bash
+python -m pip install pyinstaller pillow
+python tools/make_icon.py      # (re)generate the Spark Hero icon  -> tools/claude.ico
+python tools/make_music.py     # (re)generate the looping music    -> music/track_*.wav
+python -m PyInstaller SuperClaudeBros.spec --noconfirm
+```
+
+The app is produced at `dist/SuperClaudeBros.exe`. (When PyInstaller finishes it prints
+`Build complete!` — if you don't see that line, the build was interrupted; run it again.)
 
 Create a desktop shortcut with the icon (PowerShell, from the project root):
 
-    $ws = New-Object -ComObject WScript.Shell
-    $sc = $ws.CreateShortcut("$([Environment]::GetFolderPath('Desktop'))\Super Claude Bros.lnk")
-    $sc.TargetPath = "$PWD\dist\SuperClaudeBros.exe"
-    $sc.IconLocation = "$PWD\dist\SuperClaudeBros.exe,0"
-    $sc.Save()
+```powershell
+$ws = New-Object -ComObject WScript.Shell
+$sc = $ws.CreateShortcut("$([Environment]::GetFolderPath('Desktop'))\Super Claude Bros.lnk")
+$sc.TargetPath  = "$PWD\dist\SuperClaudeBros.exe"
+$sc.IconLocation = "$PWD\dist\SuperClaudeBros.exe,0"
+$sc.Save()
+```
 
-## Tests
+## 🧪 Tests
 
-    python -m pytest
+```bash
+python -m pytest
+```
 
-## Project layout
+The suite covers the pure logic — physics/collision, level parsing, the level sequence, jumping,
+power states, ducking, scoring, and boss behavior.
 
-- `game/` — the engine (loop & states, physics, level + level sequence, camera, entities, `assets.py` art seam, music, sound, effects)
-- `levels/level_1..5.txt` — the levels, as editable ASCII grids with a `# type:` header (overworld / underground)
-- `music/track_1..5.wav` — looping tracks (generated by `tools/make_music.py`)
-- `tools/make_icon.py`, `tools/make_music.py` — asset generators
-- `tests/` — unit tests (physics, level parsing, level sequence, jump, power, scoring)
+## 📁 Project layout
+
+```
+main.py                 entry point
+game/                   the engine
+  game.py                 main loop, states, screens, music flow
+  physics.py              axis-separated AABB collision
+  settings.py             every tunable constant
+  level.py / levelset.py  ASCII level loader + the 32-level sequence
+  camera.py  assets.py    scrolling + ALL rendering (the "art seam")
+  sound.py  music.py       synthesized SFX + music manager
+  entities/               player, enemies, bosses, items, hazards, effects
+levels/level_1..32.txt  the levels — editable ASCII grids with a `# type:` header
+music/track_1..5.wav    procedural looping tracks (generated by tools/make_music.py)
+tools/                  asset generators (icon, music) + the traversal test bot
+tests/                  unit tests
+docs/superpowers/       the design specs & plans the game was built from
+```
+
+Levels are plain text — open one in `levels/` and you can read (and remix) the whole stage as a
+grid of tile glyphs.
+
+---
+
+## 🤖 How it was made
+
+Designed and coded collaboratively with **Claude** (Anthropic), world by world, each phase
+captured as a design spec in `docs/superpowers/`. Built as a love letter to the platformers that
+started it all — entirely from original parts.

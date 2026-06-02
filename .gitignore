@@ -7,7 +7,9 @@ venv/
 # PyInstaller build artifacts
 build/
 dist/
+# ignore generated .spec files, but keep our hand-tuned build recipe (others need it)
 *.spec
+!SuperClaudeBros.spec
 
 # Icon preview + scratch concept art (sources of truth are committed elsewhere)
 tools/claude_preview.png
