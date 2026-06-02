@@ -12,6 +12,7 @@ from game.entities.koopa import Koopa
 from game.entities.boo import Boo
 from game.entities.boss_shot import BossShot
 from game.entities.bullet import BulletBill
+from game.entities.lava_bubble import LavaBubble
 from game.hud import HUD
 from game.sound import SoundFX
 from game.music import MusicManager
@@ -49,6 +50,9 @@ class Game:
         self.level = Level(S.resource_path("levels/" + levelset.level_file(self.index)))
         if self.level.boss:
             self.level.boss.set_tier(self.index // 4 + 1)
+        self.lava_rising = self.level.area_type == "caldera"
+        self.lava_rise_y = float(S.HEIGHT + 30)
+        self.bubble_timer = S.BUBBLE_INTERVAL
         self.player = Player(*self.level.player_spawn)
         self.camera = Camera(self.level.width_px)
         self.mushrooms = []
@@ -56,6 +60,7 @@ class Game:
         self.fireballs = []
         self.boss_shots = []
         self.bullets = []
+        self.lava_bubbles = []
         self.effects = []
         self.cleared_boss = False
         self.boss_title = ""
@@ -73,6 +78,9 @@ class Game:
         self.level = Level(S.resource_path("levels/" + levelset.level_file(self.index)))
         if self.level.boss:
             self.level.boss.set_tier(self.index // 4 + 1)
+        self.lava_rising = self.level.area_type == "caldera"
+        self.lava_rise_y = float(S.HEIGHT + 30)
+        self.bubble_timer = S.BUBBLE_INTERVAL
         self.player = Player(*self.level.player_spawn)
         self.camera = Camera(self.level.width_px)
         self.mushrooms = []
@@ -80,6 +88,7 @@ class Game:
         self.fireballs = []
         self.boss_shots = []
         self.bullets = []
+        self.lava_bubbles = []
         self.effects = []
         if self.carry_power == "big":
             self.player.grow()
@@ -209,6 +218,16 @@ class Game:
         for bl in self.bullets:
             bl.update(self.level)
         self.bullets = [bl for bl in self.bullets if bl.alive]
+        if self.lava_rising:
+            self.lava_rise_y -= S.LAVA_RISE_SPEED
+            self.bubble_timer -= 1
+            if self.bubble_timer <= 0:
+                self.bubble_timer = S.BUBBLE_INTERVAL
+                bx = self.player.rect.centerx + (60 if self.player.facing > 0 else -60)
+                self.lava_bubbles.append(LavaBubble(bx, self.lava_rise_y))
+        for lb in self.lava_bubbles:
+            lb.update(self.level)
+        self.lava_bubbles = [lb for lb in self.lava_bubbles if lb.alive]
         for m in self.mushrooms:
             m.update(self.level)
         for fl in self.flowers:
@@ -237,6 +256,16 @@ class Game:
             return
         if self.handle_bullets():
             return
+        if self.lava_rising and self.player.rect.bottom >= self.lava_rise_y:
+            self.lose_life()
+            return
+        for lb in self.lava_bubbles:
+            if lb.alive and self.player.rect.colliderect(lb.rect):
+                lb.alive = False
+                if self.player.take_damage(self.now()):
+                    self.lose_life()
+                    return
+                self.sfx.play("hurt")
         if self.level.flag and self.player.rect.colliderect(self.level.flag.rect):
             self.sfx.play("win")
             self.state = "LEVEL_COMPLETE"
@@ -496,6 +525,10 @@ class Game:
             area = self.level.area_type
             assets.draw_background(self.screen, self.camera, area)
             self.level.draw(self.screen, self.camera)
+            if self.lava_rising:
+                assets.draw_lava_sea(self.screen, self.lava_rise_y)
+            for lb in self.lava_bubbles:
+                lb.draw(self.screen, self.camera)
             for m in self.mushrooms:
                 m.draw(self.screen, self.camera)
             for fl in self.flowers:
