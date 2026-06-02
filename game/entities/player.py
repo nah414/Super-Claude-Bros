@@ -37,19 +37,51 @@ class Player(Entity):
         self.vy = S.SWIM_STROKE              # a fixed upward push per tap (water only)
 
     # --- power state ---
-    def grow(self):
+    def unstick(self, solids):
+        """Eject the hitbox from any solid it overlaps, pushing out the shallowest way.
+
+        A power change resizes the box (grow: +width to the right, +height upward),
+        which can leave the hero embedded in a wall or ceiling. If left embedded, the
+        velocity-sign collision resolver snaps the hero to the solid's FAR side on the
+        next move (teleport-through) and wedges them — the World-8 'frozen' bug. Run
+        this right after every resize so each frame starts from a valid position.
+        """
+        if not solids:
+            return
+        for _ in range(4):                   # a few passes settle corners / stacked tiles
+            r = self.rect
+            hit = next((s for s in solids if r.colliderect(s)), None)
+            if hit is None:
+                return
+            pen_left  = r.right - hit.left   # move LEFT this far to clear
+            pen_right = hit.right - r.left   # move RIGHT this far to clear
+            pen_up    = r.bottom - hit.top   # move UP this far to clear
+            pen_down  = hit.bottom - r.top   # move DOWN this far to clear
+            m = min(pen_left, pen_right, pen_up, pen_down)
+            if m == pen_up:
+                self.y -= pen_up             # lift out onto the surface
+            elif m == pen_down:
+                self.y += pen_down           # lower out from under a ceiling
+            elif m == pen_left:
+                self.x -= pen_left
+            else:
+                self.x += pen_right
+
+    def grow(self, solids=None):
         if self.power == "small":
             old_h = self.h
             self.w, self.h = S.PLAYER_BIG
             self.y -= (self.h - old_h)       # keep feet planted
             self.power = "big"
+            self.unstick(solids)             # never finish a resize embedded in a wall
 
-    def become_fire(self):
+    def become_fire(self, solids=None):
         if self.power == "small":
             old_h = self.h
             self.w, self.h = S.PLAYER_BIG
             self.y -= (self.h - old_h)
         self.power = "fire"
+        self.unstick(solids)
 
     def can_shoot(self, now_ms):
         return self.power == "fire" and now_ms - self.last_fire_ms >= S.FIRE_COOLDOWN_MS
