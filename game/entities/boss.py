@@ -22,8 +22,8 @@ class Boss(Entity):
     def set_tier(self, world):
         """Scale stats + identity to the world (1-based)."""
         self.hp = S.BOSS_HP + (world - 1) // 2
-        self.speed = S.BOSS_SPEED + (world - 1) * 0.12
-        self.shot_cd = max(45, S.BOSS_SHOT_COOLDOWN - (world - 1) * 9)
+        self.speed = S.BOSS_SPEED + (world - 1) * 0.10
+        self.shot_cd = max(54, S.BOSS_SHOT_COOLDOWN - (world - 1) * 7)   # ~20% less frequent than before
         self.shot_timer = self.shot_cd
         self.color = S.BOSS_COLORS[(world - 1) % len(S.BOSS_COLORS)]
         self.title = S.BOSS_TITLES[(world - 1) % len(S.BOSS_TITLES)]
