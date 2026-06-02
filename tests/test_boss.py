@@ -10,6 +10,11 @@ def test_set_tier_scales_and_themes():
     assert b.hp > base and b.title == "PHANTOM KOOPA" and b.color == S.BOSS_COLORS[4]
 
 
+def test_king_koopa_is_extra_tough():
+    b = Boss(0, 0); b.set_tier(8)
+    assert b.title == "KING KOOPA" and b.hp == S.BOSS_HP + 7 // 2 + 2
+
+
 def test_boss_takes_three_fireballs():
     b = Boss(100, 100)
     assert b.hp == S.BOSS_HP

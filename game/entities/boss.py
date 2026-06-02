@@ -22,6 +22,8 @@ class Boss(Entity):
     def set_tier(self, world):
         """Scale stats + identity to the world (1-based)."""
         self.hp = S.BOSS_HP + (world - 1) // 2
+        if world >= 8:
+            self.hp += 2                                  # the King: an extra-tough finale
         self.speed = S.BOSS_SPEED + (world - 1) * 0.10
         self.shot_cd = max(54, S.BOSS_SHOT_COOLDOWN - (world - 1) * 7)   # ~20% less frequent than before
         self.shot_timer = self.shot_cd

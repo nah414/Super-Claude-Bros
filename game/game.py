@@ -521,6 +521,8 @@ class Game:
     def draw(self):
         if self.state == "TITLE":
             self.draw_title()
+        elif self.state == "GAME_COMPLETE":
+            self.draw_ending()
         else:
             area = self.level.area_type
             assets.draw_background(self.screen, self.camera, area)
@@ -555,8 +557,6 @@ class Game:
                     self.banner("LEVEL COMPLETE!", "Press ENTER")
             elif self.state == "GAME_OVER":
                 self.banner("GAME OVER", "Press ENTER for title")
-            elif self.state == "GAME_COMPLETE":
-                self.banner("YOU SAVED THE DAY!", "Press ENTER for title")
         pygame.display.flip()
 
     def draw_title(self):
@@ -569,6 +569,18 @@ class Game:
         self.screen.blit(t, t.get_rect(center=(S.WIDTH // 2, 300)))
         self.screen.blit(s, s.get_rect(center=(S.WIDTH // 2, 354)))
         self.screen.blit(s2, s2.get_rect(center=(S.WIDTH // 2, 392)))
+
+    def draw_ending(self):
+        self.screen.fill((22, 16, 30))
+        assets.draw_player(self.screen, pygame.Rect(S.WIDTH // 2 - 36, 104, 72, 104), 1, "fire")
+        t = self.big_font.render("YOU SAVED THE DAY!", True, S.ORANGE)
+        s1 = self.small_font.render("All 8 worlds are free — thank you for playing", True, S.CREAM)
+        s2 = self.small_font.render("S U P E R   C L A U D E   B R O S", True, (216, 180, 90))
+        s3 = self.small_font.render("Press ENTER for the title", True, S.MIDGRAY)
+        self.screen.blit(t, t.get_rect(center=(S.WIDTH // 2, 296)))
+        self.screen.blit(s1, s1.get_rect(center=(S.WIDTH // 2, 352)))
+        self.screen.blit(s2, s2.get_rect(center=(S.WIDTH // 2, 392)))
+        self.screen.blit(s3, s3.get_rect(center=(S.WIDTH // 2, 452)))
 
     def banner(self, title, subtitle):
         overlay = pygame.Surface((S.WIDTH, S.HEIGHT), pygame.SRCALPHA)

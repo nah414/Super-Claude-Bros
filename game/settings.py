@@ -124,6 +124,8 @@ CASTLE_SKINS = {
     "castle_ice":   {"bg": (34, 50, 70), "ground": (86, 110, 134), "edge": (190, 214, 234), "glow": (120, 170, 210)},
     "castle_haunt": {"bg": (30, 20, 42), "ground": (56, 42, 64), "edge": (118, 90, 128), "glow": (150, 90, 150)},
     "castle_factory": {"bg": (28, 30, 36), "ground": (80, 84, 94), "edge": (150, 156, 168), "glow": (180, 140, 80)},
+    "castle_caldera": {"bg": (40, 14, 12), "ground": (58, 36, 32), "edge": (170, 80, 44), "glow": (230, 90, 30)},
+    "castle_keep": {"bg": (16, 10, 16), "ground": (48, 36, 48), "edge": (180, 150, 70), "glow": (150, 40, 50)},
 }
 
 # --- Sky (World 2) ---
@@ -186,6 +188,20 @@ BELT_LIGHT     = (150, 156, 168)
 CONVEYOR_SPEED = 2.0           # how fast a belt carries a grounded hero
 COG_SPEED      = 1.4
 COG_SCORE      = 200
+
+# --- Caldera (World 7) ---
+CALDERA_BG      = (40, 16, 14)
+CALDERA_GROUND  = (52, 36, 34)
+CALDERA_EDGE    = (152, 72, 42)
+LAVA_RISE_SPEED = 0.25         # px/frame the lava sea climbs
+BUBBLE_INTERVAL = 110          # frames between lava bubbles
+BUBBLE_VY       = -10.0
+BUBBLE_SIZE     = 22
+
+# --- Koopa Keep (World 8 finale) ---
+KEEP_BG     = (18, 12, 18)
+KEEP_GROUND = (46, 34, 44)
+KEEP_EDGE   = (132, 62, 72)
 
 
 def resource_path(rel):
