@@ -33,6 +33,9 @@ class Player(Entity):
         if self.vy < S.JUMP_CUTOFF:          # released while still rising fast
             self.vy = S.JUMP_CUTOFF
 
+    def swim_stroke(self):
+        self.vy = S.SWIM_STROKE              # a fixed upward push per tap (water only)
+
     # --- power state ---
     def grow(self):
         if self.power == "small":
@@ -73,7 +76,10 @@ class Player(Entity):
     # --- per-frame ---
     def update(self, level):
         self._horizontal(pygame.key.get_pressed())
-        self.vy = min(self.vy + S.GRAVITY, S.MAX_FALL)
+        if getattr(level, "area_type", "") == "water":
+            self.vy = min(self.vy + S.SWIM_GRAVITY, S.SWIM_MAX_SINK)
+        else:
+            self.vy = min(self.vy + S.GRAVITY, S.MAX_FALL)
         contacts = move_and_collide(self, level.solids)
         self.on_ground = contacts["bottom"]
         if self.on_ground:
