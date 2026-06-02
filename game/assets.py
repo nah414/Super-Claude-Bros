@@ -11,6 +11,18 @@ _STARS = [(57, 60), (140, 38), (210, 90), (320, 50), (440, 110), (560, 44),
 
 
 def draw_background(surface, camera, area_type="overworld"):
+    if area_type == "water":
+        for i in range(0, S.HEIGHT, 8):                  # teal -> deep-blue depth gradient
+            t = i / S.HEIGHT
+            surface.fill((int(S.WATER_TOP[0] * (1 - t) + S.WATER_BOTTOM[0] * t),
+                          int(S.WATER_TOP[1] * (1 - t) + S.WATER_BOTTOM[1] * t),
+                          int(S.WATER_TOP[2] * (1 - t) + S.WATER_BOTTOM[2] * t)),
+                         (0, i, S.WIDTH, 8))
+        shift = int(camera.offset_x * 0.3)
+        for bx, by, r in [(80, 200, 4), (220, 360, 3), (400, 140, 5), (560, 420, 3),
+                          (720, 260, 4), (880, 330, 4), (300, 500, 3), (640, 90, 3)]:
+            pygame.draw.circle(surface, S.BUBBLE, ((bx - shift) % S.WIDTH, by), r)
+        return
     if area_type == "sky":
         for i in range(0, S.HEIGHT, 8):                  # dusk vertical gradient
             t = i / S.HEIGHT
@@ -58,6 +70,8 @@ def draw_block(surface, rect, kind, used=False, area_type="overworld"):
         ground, edge = S.CASTLE_GROUND, S.CASTLE_EDGE
     elif area_type == "sky":
         ground, edge = S.SKY_GROUND, S.SKY_EDGE
+    elif area_type == "water":
+        ground, edge = S.SEABED, S.SEABED_EDGE
     elif area_type == "underground":
         ground, edge = S.CAVE_GROUND, S.CAVE_EDGE
     else:
@@ -172,6 +186,20 @@ def draw_pipe(surface, rect, mouth):
         pygame.draw.rect(surface, S.PIPE, rect)
         pygame.draw.rect(surface, S.PIPE_DK, (rect.right - 8, rect.y, 8, rect.h))
         pygame.draw.line(surface, S.CREAM, (rect.x + 4, rect.y), (rect.x + 4, rect.bottom), 2)
+
+
+def draw_cheep(surface, rect, direction=1):
+    pygame.draw.ellipse(surface, S.CHEEP_COLOR, rect)
+    pygame.draw.ellipse(surface, S.INK, rect, 2)
+    if direction > 0:                                  # tail trails behind
+        tail = [(rect.left + 2, rect.centery), (rect.left - 8, rect.top + 2), (rect.left - 8, rect.bottom - 2)]
+    else:
+        tail = [(rect.right - 2, rect.centery), (rect.right + 8, rect.top + 2), (rect.right + 8, rect.bottom - 2)]
+    pygame.draw.polygon(surface, S.CHEEP_COLOR, tail)
+    pygame.draw.polygon(surface, S.INK, tail, 1)
+    ex = rect.right - 8 if direction > 0 else rect.left + 8
+    pygame.draw.circle(surface, S.CREAM, (ex, rect.centery - 2), 3)
+    pygame.draw.circle(surface, S.INK, (ex, rect.centery - 2), 1)
 
 
 def draw_cannon(surface, rect):

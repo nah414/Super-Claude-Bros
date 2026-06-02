@@ -128,6 +128,23 @@ BULLET_COOLDOWN = 150          # frames between a cannon's shots
 BULLET_MIN_DIST = 70           # don't fire if the player is closer than this
 BULLET_MAX_DIST = 520          # ...or farther than this
 
+# --- Water (World 3) ---
+WATER_TOP    = (40, 110, 140)
+WATER_BOTTOM = (14, 30, 70)
+SEABED       = (58, 86, 96)
+SEABED_EDGE  = (110, 150, 140)
+BUBBLE       = (210, 236, 240)
+SWIM_GRAVITY  = 0.28           # gentle sink (vs GRAVITY)
+SWIM_MAX_SINK = 3.0            # slow terminal sink speed
+SWIM_STROKE   = -5.0           # upward push per stroke
+# Cheep-Cheep
+CHEEP_COLOR      = (236, 112, 122)
+CHEEP_SPEED      = 1.4
+CHEEP_BOB_AMP    = 16
+CHEEP_BOB_PERIOD = 110
+CHEEP_RANGE      = 150
+CHEEP_SCORE      = 200
+
 
 def resource_path(rel):
     """Resolve a data file path for both source runs and PyInstaller bundles.
