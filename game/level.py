@@ -8,6 +8,7 @@ from game.entities.flyer import Flyer
 from game.entities.cheep import CheepCheep
 from game.entities.frostbite import Frostbite
 from game.entities.boo import Boo
+from game.entities.cog import Cog
 from game.entities.koopa import Koopa
 from game.entities.boss import Boss
 from game.entities.cannon import Cannon
@@ -24,6 +25,7 @@ class Level:
         self.warps = []
         self.lava = []
         self.cannons = []
+        self.conveyors = []
         self.boss = None
         self._load(path)
         self.width_px = self.cols * S.TILE
@@ -56,6 +58,8 @@ class Level:
                         above = rows[j - 1][i] if j > 0 and i < len(rows[j - 1]) else "."
                         if above != "N":
                             self.cannons.append(Cannon(x, y))
+                    elif ch in ("<", ">"):           # conveyor belt (solid + a push direction)
+                        self.conveyors.append((pygame.Rect(x, y, S.TILE, S.TILE), -1 if ch == "<" else 1))
                 elif ch == "C":
                     self.coins.append(Coin(x, y))
                 elif ch == "G":
@@ -68,6 +72,8 @@ class Level:
                     self.enemies.append(Frostbite(x, y))
                 elif ch == "O":
                     self.enemies.append(Boo(x, y))
+                elif ch == "R":
+                    self.enemies.append(Cog(x, y))
                 elif ch == "K":
                     self.enemies.append(Koopa(x, y))
                 elif ch == "L":
@@ -83,6 +89,14 @@ class Level:
             ex, ey = (int(v) for v in entry.strip().split(","))
             dx, dy = (int(v) for v in dest.strip().split(","))
             self.warps.append((pygame.Rect(ex * S.TILE, ey * S.TILE, S.TILE, S.TILE), (dx, dy)))
+
+    def belt_dir(self, rect):
+        """Direction (+1/-1) of the conveyor under the hero's feet, else 0."""
+        foot = (rect.centerx, rect.bottom + 2)
+        for r, d in self.conveyors:
+            if r.collidepoint(*foot):
+                return d
+        return 0
 
     def draw(self, surface, camera):
         for b in self.blocks:

@@ -186,6 +186,7 @@ class Game:
     # --- update ---
     def update(self):
         self.player.update(self.level)
+        self.apply_conveyor()
         for e in self.level.enemies:
             e.update(self.level)
         for e in self.level.enemies:
@@ -245,6 +246,18 @@ class Game:
             return
         if any(self.player.rect.colliderect(l) for l in self.level.lava):
             self.lose_life()
+
+    def apply_conveyor(self):
+        """Belt floors carry a grounded hero; a wall stops the carry."""
+        if not self.player.on_ground:
+            return
+        d = self.level.belt_dir(self.player.rect)
+        if not d:
+            return
+        self.player.x += S.CONVEYOR_SPEED * d
+        for s in self.level.solids:
+            if self.player.rect.colliderect(s):
+                self.player.x = float(s.left - self.player.w) if d > 0 else float(s.right)
 
     def handle_coins(self):
         for c in self.level.coins:
