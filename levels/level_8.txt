@@ -1,4 +1,4 @@
-# type: castle
+# type: castle_sky
 ........................................................................................
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ......................................................................................XX

@@ -3,6 +3,13 @@ from game import settings as S
 from game.entities.boss import Boss
 
 
+def test_set_tier_scales_and_themes():
+    b = Boss(0, 0)
+    base = b.hp
+    b.set_tier(5)
+    assert b.hp > base and b.title == "PHANTOM KOOPA" and b.color == S.BOSS_COLORS[4]
+
+
 def test_boss_takes_three_fireballs():
     b = Boss(100, 100)
     assert b.hp == S.BOSS_HP

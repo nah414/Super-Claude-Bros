@@ -51,10 +51,11 @@ def draw_background(surface, camera, area_type="overworld"):
             pygame.draw.ellipse(surface, S.CLOUD, (x, cy, r * 3, r))
             pygame.draw.ellipse(surface, S.CLOUD, (x + r, cy - r // 2, r * 2, r))
         return
-    if area_type == "castle":
-        surface.fill(S.CASTLE_BG)
+    if area_type in S.CASTLE_SKINS:
+        skin = S.CASTLE_SKINS[area_type]
+        surface.fill(skin["bg"])
         glow = pygame.Surface((S.WIDTH, 70), pygame.SRCALPHA)
-        glow.fill((200, 70, 30, 45))                 # lava glow rising from below
+        glow.fill((*skin["glow"], 45))               # themed glow rising from below
         surface.blit(glow, (0, S.HEIGHT - 70))
         return
     if area_type == "underground":
@@ -81,8 +82,9 @@ def _question_font():
 
 
 def draw_block(surface, rect, kind, used=False, area_type="overworld"):
-    if area_type == "castle":
-        ground, edge = S.CASTLE_GROUND, S.CASTLE_EDGE
+    if area_type in S.CASTLE_SKINS:
+        skin = S.CASTLE_SKINS[area_type]
+        ground, edge = skin["ground"], skin["edge"]
     elif area_type == "sky":
         ground, edge = S.SKY_GROUND, S.SKY_EDGE
     elif area_type == "water":
@@ -306,9 +308,10 @@ def draw_boss_shot(surface, rect):
     pygame.draw.circle(surface, S.LAVA_GLOW, c, max(2, rect.w // 2 - 6))
 
 
-def draw_boss(surface, rect, direction=1, flashing=False):
+def draw_boss(surface, rect, direction=1, flashing=False, color=None):
+    color = color or S.KOOPA_SHELL
     shell = pygame.Rect(rect.x, rect.y + 12, rect.w, rect.h - 12)
-    dome = S.CREAM if flashing else S.KOOPA_SHELL
+    dome = S.CREAM if flashing else color
     # angry head poking forward
     hx = rect.right - 12 if direction > 0 else rect.left + 12
     pygame.draw.circle(surface, S.SAGE, (hx, rect.y + 18), 12)
@@ -329,6 +332,11 @@ def draw_boss(surface, rect, direction=1, flashing=False):
     # feet
     pygame.draw.ellipse(surface, S.SAGE, (rect.left + 5, rect.bottom - 8, rect.w // 2 - 7, 8))
     pygame.draw.ellipse(surface, S.SAGE, (rect.centerx + 4, rect.bottom - 8, rect.w // 2 - 7, 8))
+    cy = rect.y + 1                                       # gold crown on the lord's head
+    crown = [(hx - 9, cy + 7), (hx - 9, cy), (hx - 4, cy + 4), (hx, cy - 3),
+             (hx + 4, cy + 4), (hx + 9, cy), (hx + 9, cy + 7)]
+    pygame.draw.polygon(surface, (232, 196, 84), crown)
+    pygame.draw.polygon(surface, S.INK, crown, 1)
 
 
 def draw_flag(surface, rect):

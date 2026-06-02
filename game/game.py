@@ -47,6 +47,8 @@ class Game:
 
     def start_level(self):
         self.level = Level(S.resource_path("levels/" + levelset.level_file(self.index)))
+        if self.level.boss:
+            self.level.boss.set_tier(self.index // 4 + 1)
         self.player = Player(*self.level.player_spawn)
         self.camera = Camera(self.level.width_px)
         self.mushrooms = []
@@ -56,6 +58,7 @@ class Game:
         self.bullets = []
         self.effects = []
         self.cleared_boss = False
+        self.boss_title = ""
         if self.carry_power == "big":
             self.player.grow()
         elif self.carry_power == "fire":
@@ -68,6 +71,8 @@ class Game:
     def respawn(self):
         # death restarts the level fresh (boxes/enemies/boss reset) — classic Mario, no softlock
         self.level = Level(S.resource_path("levels/" + levelset.level_file(self.index)))
+        if self.level.boss:
+            self.level.boss.set_tier(self.index // 4 + 1)
         self.player = Player(*self.level.player_spawn)
         self.camera = Camera(self.level.width_px)
         self.mushrooms = []
@@ -432,6 +437,7 @@ class Game:
         self.popup(b.rect.centerx, b.rect.top, f"+{b.score}")
         self.sfx.play("win")
         self.cleared_boss = True
+        self.boss_title = b.title
         self.state = "LEVEL_COMPLETE"
 
     def handle_boss(self):
@@ -497,7 +503,8 @@ class Game:
                 self.banner(f"WORLD {levelset.world_label(self.index)}", "")
             elif self.state == "LEVEL_COMPLETE":
                 if self.cleared_boss:
-                    self.banner(f"WORLD {levelset.world_label(self.index)[0]} CLEARED!", "Press ENTER")
+                    self.banner(f"{self.boss_title} DEFEATED!",
+                                f"World {levelset.world_label(self.index)[0]} clear — Press ENTER")
                 else:
                     self.banner("LEVEL COMPLETE!", "Press ENTER")
             elif self.state == "GAME_OVER":

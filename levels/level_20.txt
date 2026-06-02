@@ -1,4 +1,4 @@
-# type: castle
+# type: castle_haunt
 ........................................................................................
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ......................................................................................XX
@@ -10,7 +10,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ......................................................................................XX
 ......................................................................................XX
 ........................M...M.........................................................XX
-......................................................................................XX
-..P.....................................................................Z.............XX
+............................................................N...................N.....XX
+..P.........................................................N...........Z.......N.....XX
 XXXXXXXXXXXXXXXXXLLXXXXXXXXXXXXXXXXXXXXXLLXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXLLXXXXXXXXXXXXXXXXXXXXXLLXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
