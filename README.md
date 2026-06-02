@@ -44,7 +44,9 @@ Clear World 8-4 and you'll earn the victory/credits screen.
 
 - **Power tiers** — Mushroom makes you big; **Fire Flower** lets you throw fireballs (small → big → fire).
 - **Shells** — stomp a Koopa, then kick, **carry**, and throw its shell to chain-clear enemies.
-- **Warp pipes** & hidden coin vaults.
+- **Secret bonus stages** — every world hides **at least two** green warp pipes. Press **↓** on one to
+  drop into a full-screen coin vault, complete with a platform ledge and **two of that world's own
+  enemies**, then ride the return pipe back to the main path.
 - **Ducking** — crouch to tuck under hazards (a big hero ducks to about one tile).
 - Original **procedural music** (a different looping track per area) and synthesized sound effects.
 - A **title-screen world select** so you can jump straight to any world.
@@ -106,7 +108,7 @@ python -m pytest
 ```
 
 The suite covers the pure logic — physics/collision, level parsing, the level sequence, jumping,
-power states, ducking, scoring, and boss behavior.
+power states, ducking, scoring, boss behavior, and the warp-pipe bonus stages.
 
 ## 📁 Project layout
 
