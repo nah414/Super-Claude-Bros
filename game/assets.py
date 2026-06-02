@@ -11,6 +11,19 @@ _STARS = [(57, 60), (140, 38), (210, 90), (320, 50), (440, 110), (560, 44),
 
 
 def draw_background(surface, camera, area_type="overworld"):
+    if area_type == "sky":
+        for i in range(0, S.HEIGHT, 8):                  # dusk vertical gradient
+            t = i / S.HEIGHT
+            surface.fill((int(S.SKY_TOP[0] * (1 - t) + S.SKY_BOTTOM[0] * t),
+                          int(S.SKY_TOP[1] * (1 - t) + S.SKY_BOTTOM[1] * t),
+                          int(S.SKY_TOP[2] * (1 - t) + S.SKY_BOTTOM[2] * t)),
+                         (0, i, S.WIDTH, 8))
+        shift = int(camera.offset_x * 0.3)
+        for cx, cy, r in [(120, 90, 24), (360, 58, 18), (640, 120, 28), (820, 76, 20), (500, 150, 16)]:
+            x = (cx - shift) % (S.WIDTH + 160) - 80
+            pygame.draw.ellipse(surface, S.CLOUD, (x, cy, r * 3, r))
+            pygame.draw.ellipse(surface, S.CLOUD, (x + r, cy - r // 2, r * 2, r))
+        return
     if area_type == "castle":
         surface.fill(S.CASTLE_BG)
         glow = pygame.Surface((S.WIDTH, 70), pygame.SRCALPHA)
@@ -43,6 +56,8 @@ def _question_font():
 def draw_block(surface, rect, kind, used=False, area_type="overworld"):
     if area_type == "castle":
         ground, edge = S.CASTLE_GROUND, S.CASTLE_EDGE
+    elif area_type == "sky":
+        ground, edge = S.SKY_GROUND, S.SKY_EDGE
     elif area_type == "underground":
         ground, edge = S.CAVE_GROUND, S.CAVE_EDGE
     else:
@@ -72,6 +87,8 @@ def draw_block(surface, rect, kind, used=False, area_type="overworld"):
         draw_pipe(surface, rect, mouth=True)
     elif kind == "t":                     # pipe shaft
         draw_pipe(surface, rect, mouth=False)
+    elif kind == "N":                     # cannon (Bill Blaster)
+        draw_cannon(surface, rect)
 
 
 def _burst(surface, cx, cy, R, color, width, step=30):
@@ -155,6 +172,26 @@ def draw_pipe(surface, rect, mouth):
         pygame.draw.rect(surface, S.PIPE, rect)
         pygame.draw.rect(surface, S.PIPE_DK, (rect.right - 8, rect.y, 8, rect.h))
         pygame.draw.line(surface, S.CREAM, (rect.x + 4, rect.y), (rect.x + 4, rect.bottom), 2)
+
+
+def draw_cannon(surface, rect):
+    pygame.draw.rect(surface, S.CANNON, rect, border_radius=3)
+    pygame.draw.rect(surface, S.INK, rect, 2, border_radius=3)
+    pygame.draw.circle(surface, S.MIDGRAY, (rect.centerx, rect.y + 9), 6)   # bore
+    pygame.draw.circle(surface, S.INK, (rect.centerx, rect.y + 9), 6, 2)
+
+
+def draw_bullet(surface, rect, direction=1):
+    pygame.draw.ellipse(surface, S.INK, rect)
+    pygame.draw.ellipse(surface, S.MIDGRAY, rect, 2)
+    nose = rect.right - 4 if direction > 0 else rect.left + 4
+    pygame.draw.circle(surface, S.MIDGRAY, (nose, rect.centery), 3)         # nose glint
+    ex = rect.centerx - 4 * direction
+    pygame.draw.circle(surface, S.CREAM, (ex, rect.centery), 3)             # eye
+    pygame.draw.circle(surface, S.INK, (ex, rect.centery), 1)
+    # little fins at the tail
+    tail = rect.left + 2 if direction > 0 else rect.right - 2
+    pygame.draw.line(surface, S.MIDGRAY, (tail, rect.top + 4), (tail, rect.bottom - 4), 2)
 
 
 def draw_koopa(surface, rect, state="walk", direction=1):

@@ -112,6 +112,22 @@ BOSS_SHOT_LIFE     = 150
 BOSS_SHOT_COOLDOWN = 90        # frames between boss shots
 BOSS_SCORE         = 5000
 
+# --- Sky (World 2) ---
+SKY_TOP    = (58, 44, 92)      # dusk gradient top
+SKY_BOTTOM = (224, 146, 92)    # warm horizon
+SKY_GROUND = (90, 76, 110)
+SKY_EDGE   = (196, 168, 150)
+CLOUD      = (244, 238, 240)
+CANNON     = (40, 40, 46)
+# Bullet Bills
+BULLET_SPEED    = 3.4
+BULLET_SIZE     = 26
+BULLET_LIFE     = 360
+BULLET_SCORE    = 200
+BULLET_COOLDOWN = 150          # frames between a cannon's shots
+BULLET_MIN_DIST = 70           # don't fire if the player is closer than this
+BULLET_MAX_DIST = 520          # ...or farther than this
+
 
 def resource_path(rel):
     """Resolve a data file path for both source runs and PyInstaller bundles.
