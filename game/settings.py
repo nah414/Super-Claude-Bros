@@ -43,6 +43,9 @@ DOUBLE_JUMP_VELOCITY = -12.0
 # --- Player power sizes (w, h) ---
 PLAYER_SMALL    = (30, 44)
 PLAYER_BIG      = (38, 62)
+# crouch sizes (same width, shorter) — big ducks to ~1 tile so it can tuck low
+PLAYER_SMALL_DUCK = (30, 30)
+PLAYER_BIG_DUCK   = (38, 40)
 POWER_INVULN_MS = 1500
 
 # --- Mushroom ---

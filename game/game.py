@@ -317,7 +317,7 @@ class Game:
         for m in self.mushrooms:
             if m.alive and not m.emerging and self.player.rect.colliderect(m.rect):
                 m.alive = False
-                self.player.grow()
+                self.player.grow(self.level.solids)
                 self.score += m.score
                 self.popup(m.rect.centerx, m.rect.top, f"+{m.score}")
                 self.sfx.play("power")
@@ -327,7 +327,7 @@ class Game:
         for fl in self.flowers:
             if fl.alive and not fl.emerging and self.player.rect.colliderect(fl.rect):
                 fl.alive = False
-                self.player.become_fire()
+                self.player.become_fire(self.level.solids)
                 self.score += fl.score
                 self.popup(fl.rect.centerx, fl.rect.top, f"+{fl.score}")
                 self.sfx.play("power")
