@@ -11,6 +11,14 @@ _STARS = [(57, 60), (140, 38), (210, 90), (320, 50), (440, 110), (560, 44),
 
 
 def draw_background(surface, camera, area_type="overworld"):
+    if area_type == "factory":
+        surface.fill(S.FACTORY_BG)
+        shift = int(camera.offset_x * 0.25)
+        for gx, gy, r in [(140, 120, 34), (420, 210, 26), (700, 110, 40), (880, 250, 22)]:
+            x = (gx - shift) % (S.WIDTH + 120) - 60
+            pygame.draw.circle(surface, S.BELT, (x, gy), r, 4)           # faint background gears
+            pygame.draw.circle(surface, S.BELT, (x, gy), max(4, r // 2), 3)
+        return
     if area_type == "haunted":
         surface.fill(S.HAUNT_BG)
         pygame.draw.circle(surface, S.MOON_PALE, (S.WIDTH - 110, 78), 28)
@@ -93,6 +101,8 @@ def draw_block(surface, rect, kind, used=False, area_type="overworld"):
         ground, edge = S.ICE_GROUND, S.ICE_EDGE
     elif area_type == "haunted":
         ground, edge = S.HAUNT_GROUND, S.HAUNT_EDGE
+    elif area_type == "factory":
+        ground, edge = S.FACTORY_GROUND, S.FACTORY_EDGE
     elif area_type == "underground":
         ground, edge = S.CAVE_GROUND, S.CAVE_EDGE
     else:
@@ -124,6 +134,8 @@ def draw_block(surface, rect, kind, used=False, area_type="overworld"):
         draw_pipe(surface, rect, mouth=False)
     elif kind == "N":                     # cannon (Bill Blaster)
         draw_cannon(surface, rect)
+    elif kind in ("<", ">"):              # conveyor belt
+        draw_belt(surface, rect, -1 if kind == "<" else 1)
 
 
 def _burst(surface, cx, cy, R, color, width, step=30):
@@ -252,6 +264,36 @@ def draw_cheep(surface, rect, direction=1):
     ex = rect.right - 8 if direction > 0 else rect.left + 8
     pygame.draw.circle(surface, S.CREAM, (ex, rect.centery - 2), 3)
     pygame.draw.circle(surface, S.INK, (ex, rect.centery - 2), 1)
+
+
+def draw_belt(surface, rect, direction=1):
+    pygame.draw.rect(surface, S.BELT, rect)
+    pygame.draw.rect(surface, S.INK, rect, 1)
+    pygame.draw.circle(surface, S.BELT_LIGHT, (rect.left + 7, rect.centery), 5)   # rollers
+    pygame.draw.circle(surface, S.BELT_LIGHT, (rect.right - 7, rect.centery), 5)
+    pygame.draw.circle(surface, S.INK, (rect.left + 7, rect.centery), 5, 1)
+    pygame.draw.circle(surface, S.INK, (rect.right - 7, rect.centery), 5, 1)
+    cx = rect.centerx
+    for off in (-7, 3):                                                           # direction chevrons
+        if direction > 0:
+            pts = [(cx + off, rect.centery - 4), (cx + off + 5, rect.centery), (cx + off, rect.centery + 4)]
+        else:
+            pts = [(cx + off + 5, rect.centery - 4), (cx + off, rect.centery), (cx + off + 5, rect.centery + 4)]
+        pygame.draw.polygon(surface, S.BELT_LIGHT, pts)
+
+
+def draw_cog(surface, rect, direction=1):
+    pygame.draw.rect(surface, S.MIDGRAY, rect, border_radius=3)
+    pygame.draw.rect(surface, S.INK, rect, 2, border_radius=3)
+    for tx in range(rect.left + 3, rect.right - 2, 6):                            # gear teeth on top
+        pygame.draw.rect(surface, S.LIGHTGRAY, (tx, rect.top - 3, 3, 4))
+    ex = rect.centerx + 3 * direction                                            # single eye/lens
+    pygame.draw.circle(surface, S.BLUE, (ex, rect.centery - 2), 4)
+    pygame.draw.circle(surface, S.INK, (ex, rect.centery - 2), 4, 1)
+    pygame.draw.circle(surface, S.CREAM, (ex + direction, rect.centery - 3), 1)
+    pygame.draw.rect(surface, S.INK, (rect.left + 2, rect.bottom - 5, rect.w - 4, 5))    # treads
+    for tx in range(rect.left + 5, rect.right - 3, 5):
+        pygame.draw.line(surface, S.LIGHTGRAY, (tx, rect.bottom - 4), (tx, rect.bottom - 1), 1)
 
 
 def draw_cannon(surface, rect):

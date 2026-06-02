@@ -123,6 +123,7 @@ CASTLE_SKINS = {
     "castle_sea":   {"bg": (12, 30, 44), "ground": (40, 64, 74), "edge": (96, 144, 152), "glow": (60, 150, 160)},
     "castle_ice":   {"bg": (34, 50, 70), "ground": (86, 110, 134), "edge": (190, 214, 234), "glow": (120, 170, 210)},
     "castle_haunt": {"bg": (30, 20, 42), "ground": (56, 42, 64), "edge": (118, 90, 128), "glow": (150, 90, 150)},
+    "castle_factory": {"bg": (28, 30, 36), "ground": (80, 84, 94), "edge": (150, 156, 168), "glow": (180, 140, 80)},
 }
 
 # --- Sky (World 2) ---
@@ -175,6 +176,16 @@ FOG          = (180, 168, 200)
 MOON_PALE    = (216, 208, 230)
 BOO_SPEED = 1.3
 BOO_SCORE = 200
+
+# --- Factory (World 6) ---
+FACTORY_BG     = (30, 32, 38)
+FACTORY_GROUND = (74, 78, 86)
+FACTORY_EDGE   = (140, 146, 158)
+BELT           = (54, 58, 66)
+BELT_LIGHT     = (150, 156, 168)
+CONVEYOR_SPEED = 2.0           # how fast a belt carries a grounded hero
+COG_SPEED      = 1.4
+COG_SCORE      = 200
 
 
 def resource_path(rel):
