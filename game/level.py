@@ -5,6 +5,7 @@ from game.entities.block import Block, SOLID_KINDS
 from game.entities.coin import Coin
 from game.entities.goomba import Goomba
 from game.entities.flyer import Flyer
+from game.entities.cheep import CheepCheep
 from game.entities.koopa import Koopa
 from game.entities.boss import Boss
 from game.entities.cannon import Cannon
@@ -59,6 +60,8 @@ class Level:
                     self.enemies.append(Goomba(x, y))
                 elif ch == "Y":
                     self.enemies.append(Flyer(x, y))
+                elif ch == "H":
+                    self.enemies.append(CheepCheep(x, y))
                 elif ch == "K":
                     self.enemies.append(Koopa(x, y))
                 elif ch == "L":
