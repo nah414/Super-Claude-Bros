@@ -10,6 +10,7 @@ from game.entities.fireflower import FireFlower
 from game.entities.fireball import Fireball
 from game.entities.koopa import Koopa
 from game.entities.boss_shot import BossShot
+from game.entities.bullet import BulletBill
 from game.hud import HUD
 from game.sound import SoundFX
 from game.music import MusicManager
@@ -35,11 +36,11 @@ class Game:
         self.state = "TITLE"
 
     # --- lifecycle ---
-    def new_game(self):
+    def new_game(self, index=0):
         self.score = 0
         self.tokens = 0
         self.lives = S.START_LIVES
-        self.index = 0
+        self.index = index
         self.carry_power = "small"
         self.start_level()
 
@@ -51,6 +52,7 @@ class Game:
         self.flowers = []
         self.fireballs = []
         self.boss_shots = []
+        self.bullets = []
         self.effects = []
         self.cleared_boss = False
         if self.carry_power == "big":
@@ -71,6 +73,7 @@ class Game:
         self.flowers = []
         self.fireballs = []
         self.boss_shots = []
+        self.bullets = []
         self.effects = []
         if self.carry_power == "big":
             self.player.grow()
@@ -139,6 +142,10 @@ class Game:
                         self.state = "TITLE"
                     elif self.state == "LEVEL_COMPLETE":
                         self.advance()
+                elif self.state == "TITLE" and pygame.K_1 <= event.key <= pygame.K_9:
+                    idx = (event.key - pygame.K_1) * 4        # digit -> that World's first level
+                    if idx < levelset.level_count():
+                        self.new_game(idx)
                 elif event.key in JUMP_KEYS and self.state == "PLAYING":
                     before = self.player.air_jumped
                     self.player.press_jump(self.now())
@@ -180,6 +187,14 @@ class Game:
         for s in self.boss_shots:
             s.update(self.level)
         self.boss_shots = [s for s in self.boss_shots if s.alive]
+        for c in self.level.cannons:
+            d = c.tick(self.player.rect.centerx)
+            if d and len(self.bullets) < 6:
+                self.bullets.append(BulletBill(c.rect.centerx, c.rect.centery, d))
+                self.sfx.play("fire")
+        for bl in self.bullets:
+            bl.update(self.level)
+        self.bullets = [bl for bl in self.bullets if bl.alive]
         for m in self.mushrooms:
             m.update(self.level)
         for fl in self.flowers:
@@ -205,6 +220,8 @@ class Game:
         if self.handle_enemies():
             return
         if self.handle_boss():
+            return
+        if self.handle_bullets():
             return
         if self.level.flag and self.player.rect.colliderect(self.level.flag.rect):
             self.sfx.play("win")
@@ -278,6 +295,13 @@ class Game:
                 if b.hit():
                     self.boss_defeated()
                 else:
+                    self.sfx.play("stomp")
+            for bl in self.bullets:
+                if bl.alive and f.alive and f.rect.colliderect(bl.rect):
+                    bl.alive = False
+                    f.alive = False
+                    self.score += f.score
+                    self.popup(bl.rect.centerx, bl.rect.top, f"+{f.score}")
                     self.sfx.play("stomp")
         self.fireballs = [f for f in self.fireballs if f.alive]
 
@@ -419,6 +443,24 @@ class Game:
                 self.sfx.play("hurt")
         return False
 
+    def handle_bullets(self):
+        """Bullet Bills: stompable from the top, hurt from the side."""
+        for bl in self.bullets:
+            if not bl.alive or not self.player.rect.colliderect(bl.rect):
+                continue
+            if self.player.vy > 0 and self.player.rect.bottom - bl.rect.top < 20:
+                bl.alive = False
+                self.player.vy = S.STOMP_BOUNCE
+                self.score += bl.score
+                self.popup(bl.rect.centerx, bl.rect.top, f"+{bl.score}")
+                self.sfx.play("stomp")
+            elif self.player.take_damage(self.now()):
+                self.lose_life()
+                return True
+            else:
+                self.sfx.play("hurt")
+        return False
+
     # --- draw ---
     def draw(self):
         if self.state == "TITLE":
@@ -435,6 +477,8 @@ class Game:
                 f.draw(self.screen, self.camera)
             for s in self.boss_shots:
                 s.draw(self.screen, self.camera)
+            for bl in self.bullets:
+                bl.draw(self.screen, self.camera)
             self.player.draw(self.screen, self.camera)
             if self.player.carrying is not None:
                 self.player.carrying.draw(self.screen, self.camera)   # held shell on top
@@ -457,10 +501,13 @@ class Game:
     def draw_title(self):
         self.screen.fill(S.NIGHT)
         assets.draw_player(self.screen, pygame.Rect(S.WIDTH // 2 - 30, 150, 60, 88), 1, "big")
+        worlds = (levelset.level_count() + 3) // 4
         t = self.big_font.render("SUPER CLAUDE BROS", True, S.ORANGE)
         s = self.small_font.render("Press ENTER to play", True, S.CREAM)
+        s2 = self.small_font.render(f"or 1-{worlds} to pick a World", True, S.MIDGRAY)
         self.screen.blit(t, t.get_rect(center=(S.WIDTH // 2, 300)))
-        self.screen.blit(s, s.get_rect(center=(S.WIDTH // 2, 360)))
+        self.screen.blit(s, s.get_rect(center=(S.WIDTH // 2, 354)))
+        self.screen.blit(s2, s2.get_rect(center=(S.WIDTH // 2, 392)))
 
     def banner(self, title, subtitle):
         overlay = pygame.Surface((S.WIDTH, S.HEIGHT), pygame.SRCALPHA)

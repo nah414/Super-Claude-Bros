@@ -2,7 +2,7 @@ from game import settings as S
 from game import assets
 from game.entities.entity import Entity
 
-SOLID_KINDS = ("X", "=", "B", "?", "M", "T", "t")
+SOLID_KINDS = ("X", "=", "B", "?", "M", "T", "t", "N")
 
 
 class Block(Entity):

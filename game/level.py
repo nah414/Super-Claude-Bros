@@ -7,6 +7,7 @@ from game.entities.goomba import Goomba
 from game.entities.flyer import Flyer
 from game.entities.koopa import Koopa
 from game.entities.boss import Boss
+from game.entities.cannon import Cannon
 from game.entities.flag import Flag
 
 
@@ -19,6 +20,7 @@ class Level:
         self.player_spawn = (0, 0)
         self.warps = []
         self.lava = []
+        self.cannons = []
         self.boss = None
         self._load(path)
         self.width_px = self.cols * S.TILE
@@ -47,6 +49,10 @@ class Level:
                 x, y = i * S.TILE, j * S.TILE
                 if ch in SOLID_KINDS:
                     self.blocks.append(Block(x, y, ch))
+                    if ch == "N":                    # cannon: fire only from the top of a stack
+                        above = rows[j - 1][i] if j > 0 and i < len(rows[j - 1]) else "."
+                        if above != "N":
+                            self.cannons.append(Cannon(x, y))
                 elif ch == "C":
                     self.coins.append(Coin(x, y))
                 elif ch == "G":
