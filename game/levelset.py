@@ -1,7 +1,8 @@
 """Pure level-sequence logic: order, World X-Y labels, music track per level."""
 LEVELS = ["level_1.txt", "level_2.txt", "level_3.txt", "level_4.txt",
           "level_5.txt", "level_6.txt", "level_7.txt", "level_8.txt",
-          "level_9.txt", "level_10.txt", "level_11.txt", "level_12.txt"]
+          "level_9.txt", "level_10.txt", "level_11.txt", "level_12.txt",
+          "level_13.txt", "level_14.txt", "level_15.txt", "level_16.txt"]
 TRACKS = 5
 
 
