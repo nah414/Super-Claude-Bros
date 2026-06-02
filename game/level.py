@@ -7,6 +7,7 @@ from game.entities.goomba import Goomba
 from game.entities.flyer import Flyer
 from game.entities.cheep import CheepCheep
 from game.entities.frostbite import Frostbite
+from game.entities.boo import Boo
 from game.entities.koopa import Koopa
 from game.entities.boss import Boss
 from game.entities.cannon import Cannon
@@ -65,6 +66,8 @@ class Level:
                     self.enemies.append(CheepCheep(x, y))
                 elif ch == "I":
                     self.enemies.append(Frostbite(x, y))
+                elif ch == "O":
+                    self.enemies.append(Boo(x, y))
                 elif ch == "K":
                     self.enemies.append(Koopa(x, y))
                 elif ch == "L":

@@ -9,6 +9,7 @@ from game.entities.mushroom import Mushroom
 from game.entities.fireflower import FireFlower
 from game.entities.fireball import Fireball
 from game.entities.koopa import Koopa
+from game.entities.boo import Boo
 from game.entities.boss_shot import BossShot
 from game.entities.bullet import BulletBill
 from game.hud import HUD
@@ -182,6 +183,9 @@ class Game:
         self.player.update(self.level)
         for e in self.level.enemies:
             e.update(self.level)
+        for e in self.level.enemies:
+            if isinstance(e, Boo) and e.alive:
+                e.chase(self.player)             # ghosts hunt when you look away
         if self.level.boss and self.level.boss.alive:
             self.level.boss.update(self.level)
             if self.level.boss.ready_to_shoot():

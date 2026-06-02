@@ -154,6 +154,15 @@ ICE_FRICTION = 0.05            # slippery: barely decelerates (vs FRICTION)
 FROST_SPEED  = 1.2
 FROST_SCORE  = 200
 
+# --- Haunted (World 5) ---
+HAUNT_BG     = (38, 26, 56)
+HAUNT_GROUND = (60, 44, 66)
+HAUNT_EDGE   = (120, 90, 130)
+FOG          = (180, 168, 200)
+MOON_PALE    = (216, 208, 230)
+BOO_SPEED = 1.3
+BOO_SCORE = 200
+
 
 def resource_path(rel):
     """Resolve a data file path for both source runs and PyInstaller bundles.

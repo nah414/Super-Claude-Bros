@@ -11,6 +11,15 @@ _STARS = [(57, 60), (140, 38), (210, 90), (320, 50), (440, 110), (560, 44),
 
 
 def draw_background(surface, camera, area_type="overworld"):
+    if area_type == "haunted":
+        surface.fill(S.HAUNT_BG)
+        pygame.draw.circle(surface, S.MOON_PALE, (S.WIDTH - 110, 78), 28)
+        shift = int(camera.offset_x * 0.2)
+        for fx, fy, fw in [(120, 210, 90), (380, 150, 120), (640, 270, 100), (860, 190, 80), (300, 360, 110)]:
+            wisp = pygame.Surface((fw, 28), pygame.SRCALPHA)
+            wisp.fill((*S.FOG, 38))
+            surface.blit(wisp, ((fx - shift) % (S.WIDTH + 200) - 100, fy))
+        return
     if area_type == "ice":
         surface.fill(S.ICE_SKY)
         shift = int(camera.offset_x * 0.3)
@@ -80,6 +89,8 @@ def draw_block(surface, rect, kind, used=False, area_type="overworld"):
         ground, edge = S.SEABED, S.SEABED_EDGE
     elif area_type == "ice":
         ground, edge = S.ICE_GROUND, S.ICE_EDGE
+    elif area_type == "haunted":
+        ground, edge = S.HAUNT_GROUND, S.HAUNT_EDGE
     elif area_type == "underground":
         ground, edge = S.CAVE_GROUND, S.CAVE_EDGE
     else:
@@ -194,6 +205,23 @@ def draw_pipe(surface, rect, mouth):
         pygame.draw.rect(surface, S.PIPE, rect)
         pygame.draw.rect(surface, S.PIPE_DK, (rect.right - 8, rect.y, 8, rect.h))
         pygame.draw.line(surface, S.CREAM, (rect.x + 4, rect.y), (rect.x + 4, rect.bottom), 2)
+
+
+def draw_boo(surface, rect, frozen=False, facing=1):
+    pygame.draw.ellipse(surface, S.CREAM, rect)
+    pygame.draw.ellipse(surface, S.MIDGRAY, rect, 2)
+    pygame.draw.circle(surface, S.CREAM, (rect.left + 7, rect.bottom - 3), 5)     # wavy tail
+    pygame.draw.circle(surface, S.CREAM, (rect.centerx, rect.bottom - 2), 5)
+    pygame.draw.circle(surface, S.CREAM, (rect.right - 7, rect.bottom - 3), 5)
+    if frozen:
+        for ex in (rect.centerx - 7, rect.centerx + 7):                            # hands over face (shy)
+            pygame.draw.circle(surface, S.LIGHTGRAY, (ex, rect.centery), 5)
+            pygame.draw.circle(surface, S.INK, (ex, rect.centery), 5, 1)
+    else:
+        ox = 2 * facing
+        for ex in (rect.centerx - 6 + ox, rect.centerx + 6 + ox):                  # eyes
+            pygame.draw.circle(surface, S.INK, (ex, rect.centery - 2), 3)
+        pygame.draw.arc(surface, S.INK, pygame.Rect(rect.centerx - 8, rect.centery + 2, 16, 10), 3.4, 6.0, 2)
 
 
 def draw_frostbite(surface, rect, direction=1):

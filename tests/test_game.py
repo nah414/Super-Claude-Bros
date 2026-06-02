@@ -128,6 +128,16 @@ def test_fireball_kills_stomp_proof_enemy():
     assert not fr.alive
 
 
+def test_fireball_kills_boo():
+    from game.entities.boo import Boo
+    from game.entities.fireball import Fireball
+    g = Game(); g.new_game(); g.state = "PLAYING"; g.level.enemies.clear()
+    b = Boo(300, 300); g.level.enemies.append(b)
+    g.fireballs.append(Fireball(b.rect.centerx, b.rect.centery, 1))
+    g.handle_fireballs()
+    assert not b.alive
+
+
 def test_new_game_starts_at_chosen_world():
     from game import levelset
     g = Game(); g.new_game(4)
